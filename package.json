@@ -24,7 +24,8 @@
         "google-auth-library": "^9.4.1",
         "jsonwebtoken": "^9.0.2",
         "nano": "^10.1.2",
-        "ulid": "^2.3.0"
+        "ulid": "^2.3.0",
+        "uuid": "^9.0.1"
     },
     "devDependencies": {
         "@types/bcrypt": "^5.0.2",
