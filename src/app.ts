@@ -1,13 +1,19 @@
+import express from 'express'
+
 import type { Express, Router, Request, Response } from 'express'
 
-const express = require('express'),
-   app: Express = express(),
-   routes: Router = require('./routes/index'),
-   cors = require('cors')
+import 'dotenv/config'
+
+import routes from './routes/index.mjs'
 
 
-const host = 'localhost'
-const port = 7000
+import cors from 'cors'
+
+const app: Express = express()
+
+const host = process.env.SERVER_HOST
+
+const port = Number(process.env.SERVER_PORT)
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))

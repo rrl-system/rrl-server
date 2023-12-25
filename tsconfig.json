@@ -1,20 +1,33 @@
 {
-    "compilerOptions": {
-      "types": ["node"],
-      "target": "esnext",
-      "module": "nodenext",
-      "outDir": "dist",
-      "sourceMap": true,
-      "typeRoots": [
-        "node_modules/@types",
-        "src/types"
-      ]
-    },
-    "include": [
-      "src/**/*.ts"
+  "compilerOptions": {
+    "types": [
+      "node"
     ],
-    "exclude": [
-      "node_modules",
-      "src/types/**/*.ts"
-    ]
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "outDir": "dist",
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "typeRoots": [
+      "node_modules/@types",
+      "src/@types"
+    ],
+    "paths": {
+      "*": [
+        "src/@types/*"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.mts"
+  ],
+  "exclude": [
+    "src/types/**/*.ts"
+  ],
+  // "hooks": [
+  //   "copy-files"
+  // ]
 }
