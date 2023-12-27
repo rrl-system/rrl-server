@@ -153,12 +153,22 @@ class UserService {
   }
 
   async createUserInfo(userData) {
+    console.log("userData", userData)
     const user = JSON.parse(userData)
-    return {
-      name: user.name,
-      picture: user.picture,
-      given_name: user.given_name,
-      family_name: user.family_name
+    if (user.type === 'simple') {
+      return {
+        login: user.username,
+        picture: user.picture,
+        first_name: user.firstName,
+        last_name: user.lastName
+      }
+    } else {
+      return {
+        login: user.name,
+        picture: user.picture,
+        firstName: user.given_name,
+        lastName: user.family_name
+      }
     }
   }
 

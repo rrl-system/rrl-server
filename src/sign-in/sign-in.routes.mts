@@ -17,11 +17,12 @@ router.use(async (req: Request, res: Response, next: NextFunction) => {
 
 router
     .route('/')
-    .post(singInController.getUser)
+    .post(singInController.userSignIn)
 
 router.use(function(err: any, req: Request, res: Response, next: NextFunction) {
+    console.log(err)
     res.status(err.status || 500)
-    .send(err);
+    .send({err});
 });
 
 export default router

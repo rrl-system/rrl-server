@@ -6,7 +6,11 @@ import * as ULID from 'ulid';
 
 import bcrypt from 'bcrypt'
 
+import {encode} from '../helpers/crypto.mjs';
+
 const db = nano.use('rrl-users')
+
+import jwt from 'jsonwebtoken';
 
 class SingInService {
   checkMethod(req) {
@@ -33,67 +37,71 @@ class SingInService {
       })
   }
 
-  checkUser(req) {
-    return new Promise((res, rej) => {
-        const db = nano.use('neuro-chess-users')
-        db.partitionedList(req.body.username)
-          .then(loginList => {
-            if (loginList.rows.length === 0 )
-              return res(loginList.rows.length)
-            else {
-              rej({
-                error: `Пользователь с именем ${req.body.username} уже существует`,
-                status: 400
-              })
-            }
-          })
-          .catch( (e) =>
-            rej({
-              error: `Ошибка запроса к базе данных: ${e}`,
-              status: 400
-            })
-          )
-    })
+  userSignIn(req) {
+    return (req.body.type === 'google') ? this.googleUserSingIn(req) : this.simpleUserSingIn(req)
   }
 
-  createHash(req) {
-    return bcrypt.hash(req.body.password, +process.env.SALT_ROUNDS )
-      .catch ( err =>
-        Promise.reject( {
-          error: `Ошибка создания кеша пароля: ${err}`,
-          status: 500
-        })
-      )
+  simpleUserSingIn(req) {
+    return this.verifyPassword(req)
+    .then(() => this.getUserDB(req))
+    .then(userDB => this.checkUserPassword(userDB, req))
+    .then(userDB => this.createSimpleUserToken(userDB))
   }
 
-  insertUser(req, hash) {
-
-    const user: User = {
-      ulid: ULID.ulid(),
-      password: hash
-    }
-    return db.insert(user as object, `${req.body.username}:user`)
-    .catch( err =>
-        Promise.reject({
-          error: `Ошибка создания пользователя: ${err}`,
-          status: 500
-        })
-      )
+  async createSimpleUserToken(user) {
+    const payload = {
+      id: user._id,
+      ulid: user.ulid
+    };
+    console.log("payload",payload)
+    const secret =  process.env.TOKEN_PRIVATE_KEY
+    const options = { expiresIn: '1h' };
+    return jwt.sign(payload, secret, options);
   }
 
-  getUser(req) {
-
-    return db.get(`${req.body.username}:user`).catch( err =>
-      Promise.reject({
-        error: `Не могу найти пользователя ${req.body.username} в базе данных: ${err}`,
-        status: 500
-      })
+  getUserDB(req) {
+    console.log(req.body)
+    console.log(`${encode(req.body.username)}:user`)
+    return db.get(`${encode(req.body.username)}:user`).catch( err => {
+      console.log(err)
+      return Promise.reject({
+        error: `Не могу найти Вашего пользователя в базе данных: ${err}`,
+        status: 403
+      })}
     )
   }
 
-  createUser(req) {
-    return this.createHash(req).then(hash => this.insertUser(req, hash))
+  checkUserPassword(userDB, req) {
+    console.log(userDB)
+    return bcrypt.compare(req.body.password, userDB.password)
+    .then(result => {
+      console.log(result)
+      return userDB
+    })
+    .catch(err => {
+      Promise.reject({
+        error: `Пароли не совпадают`,
+        status: 403
+      })
+    })
   }
+
+  async verifyPassword(req) {
+    if (!req.body.password)
+      return Promise.reject( {
+        error: `Не задан пароль пользователя`,
+        status: 500
+      })
+    return true
+  }
+
+  googleUserSingIn(req) {
+    return this.verifyPassword(req)
+    .then(() => this.getUserDB(req))
+    .then((userDB) => this.checkUserPassword(userDB,req))
+    .then(userDb => this.createSimpleUserToken(userDb))
+  }
+
 }
 
 const singInService: SingInService = new SingInService()
