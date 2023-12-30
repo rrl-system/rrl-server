@@ -52,7 +52,7 @@ class SignUpService {
   }
 
   createUser(req) {
-    return (req.body.type === 'google') ? this.googleUserCreate(req) : this.simpleleUserCreate(req)
+    return (req.body.type === 'google') ? this.googleUserCreate(req) : this.simpleUserCreate(req)
   }
 
 
@@ -94,7 +94,7 @@ class SignUpService {
       .then(userDb => this.createGoogleUserToken(userDb, req))
   }
 
-  simpleleUserCreate(req) {
+  simpleUserCreate(req) {
     return this.verifyPassword(req)
       .then(() => this.createHash(req))
       .then((hash) => this.hashPassword(hash,req))
