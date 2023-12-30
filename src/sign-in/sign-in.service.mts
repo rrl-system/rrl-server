@@ -4,6 +4,10 @@ import type {User} from 'user.mjs'
 
 import * as ULID from 'ulid';
 
+import {OAuth2Client} from 'google-auth-library';
+
+const client = new OAuth2Client();
+
 import bcrypt from 'bcrypt'
 
 import {encode} from '../helpers/crypto.mjs';
@@ -38,6 +42,7 @@ class SingInService {
   }
 
   userSignIn(req) {
+    console.log(req.body)
     return (req.body.type === 'google') ? this.googleUserSingIn(req) : this.simpleUserSingIn(req)
   }
 
@@ -46,6 +51,38 @@ class SingInService {
     .then(() => this.getUserDB(req))
     .then(userDB => this.checkUserPassword(userDB, req))
     .then(userDB => this.createSimpleUserToken(userDB))
+  }
+
+  googleUserSingIn(req) {
+    return this.verifyGoogleToken(req.body.token)
+    .then(ticket => this.getGoogleUserId(ticket))
+    .then(userId => this.getGoogleUserDB(userId))
+    .then(userDB => this.createSimpleUserToken(userDB))
+  }
+
+  async verifyGoogleToken(token) {
+    console.log('token', token);
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: '152529125992-enoddnchd7n8mug7he2juk5fh3fhevqe.apps.googleusercontent.com',
+    });
+    return ticket;
+  }
+
+  async getGoogleUserId(ticket) {
+    console.log('ticket', ticket);
+    return `${encode(ticket.payload.sub)}:user`
+  }
+
+  getGoogleUserDB(userId) {
+    console.log('userId', userId);
+    return db.get(userId).catch( err => {
+      console.log(err)
+      return Promise.reject({
+        error: `Не могу найти такого пользователя: ${err}`,
+        status: 403
+      })}
+    )
   }
 
   async createSimpleUserToken(user) {
@@ -65,7 +102,7 @@ class SingInService {
     return db.get(`${encode(req.body.username)}:user`).catch( err => {
       console.log(err)
       return Promise.reject({
-        error: `Не могу найти Вашего пользователя в базе данных: ${err}`,
+        error: `Не могу найти этого пользователя: ${err}`,
         status: 403
       })}
     )
@@ -76,13 +113,11 @@ class SingInService {
     return bcrypt.compare(req.body.password, userDB.password)
     .then(result => {
       console.log(result)
-      return userDB
-    })
-    .catch(err => {
-      Promise.reject({
-        error: `Пароли не совпадают`,
-        status: 403
-      })
+      return result ? userDB :
+        Promise.reject({
+          error: 'Вы указали неправильный пароль',
+          status: 403
+        })
     })
   }
 
@@ -93,13 +128,6 @@ class SingInService {
         status: 500
       })
     return true
-  }
-
-  googleUserSingIn(req) {
-    return this.verifyPassword(req)
-    .then(() => this.getUserDB(req))
-    .then((userDB) => this.checkUserPassword(userDB,req))
-    .then(userDb => this.createSimpleUserToken(userDb))
   }
 
 }

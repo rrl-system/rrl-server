@@ -58,7 +58,7 @@ class SignUpService {
 
   checkGoogleUser(ticket) {
     console.log('ticket', ticket);
-    return db.get(`${ticket.payload.sub}:user`)
+    return db.get(`${encode(ticket.payload.sub)}:user`)
       .then(
         res =>
           Promise.reject({
@@ -191,15 +191,6 @@ class SignUpService {
       )
   }
 
-  getUser(req) {
-    return db.get(`${req.body.username}:user`).catch( err =>
-      Promise.reject({
-        error: `Не могу найти пользователя ${req.body.username} в базе данных: ${err}`,
-        status: 500
-      })
-    )
-  }
-
   async createUserObject(userData, req) {
     console.log(userData)
     const googleUserData: GoogleUser = {
@@ -213,10 +204,10 @@ class SignUpService {
   }
 
   async createSimpleUserObject(req) {
-
     const simpleUserData = {
       ulid: ULID.ulid(),
       password: req.body.password,
+      emailVerified: false,
       userData: encode(JSON.stringify(req.body)),
       createDate: Date.now()
     }

@@ -6,7 +6,6 @@ import 'dotenv/config'
 
 import routes from './routes/index.mjs'
 
-
 import cors from 'cors'
 
 const app: Express = express()

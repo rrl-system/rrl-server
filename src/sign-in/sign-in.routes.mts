@@ -14,7 +14,6 @@ router.use(async (req: Request, res: Response, next: NextFunction) => {
         .catch(next)
 })
 
-
 router
     .route('/')
     .post(singInController.userSignIn)
@@ -22,7 +21,7 @@ router
 router.use(function(err: any, req: Request, res: Response, next: NextFunction) {
     console.log(err)
     res.status(err.status || 500)
-    .send({err});
+    .send(err);
 });
 
 export default router
