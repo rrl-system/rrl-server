@@ -17,11 +17,11 @@ router.use(async (req: Request, res: Response, next: NextFunction) => {
 router
     .route('/')
     .post(controller.create)
+    .put(controller.update)
 
 router
     .route('/:projectId')
     .get(controller.get)
-    .put(controller.update)
     .delete(controller.delete)
 
 router.use(function(err: any, req: Request, res: Response, next: NextFunction) {

@@ -9,10 +9,9 @@ import jwt from 'jsonwebtoken';
 class Service {
 
   get(req) {
-    const projectId = req.params.projectId;
     return this.getToken(req)
       .then(token => this.verifyToken(token))
-      .then(verifiedToken => this.getProject(verifiedToken, projectId))
+      .then(verifiedToken => this.getProject(req, verifiedToken))
   }
 
   create(req) {
@@ -24,14 +23,13 @@ class Service {
   update(req) {
     return this.getToken(req)
       .then(token => this.verifyToken(token))
-      .then(verifiedToken => this.createProject(req, verifiedToken))
+      .then(verifiedToken => this.updateProject(req, verifiedToken))
   }
 
   delete(req) {
-    const projectId = req.params.projectId;
     return this.getToken(req)
       .then(token => this.verifyToken(token))
-      .then(verifiedToken => this.deleteProject(verifiedToken, projectId))
+      .then(verifiedToken => this.deleteProject(req, verifiedToken))
   }
 
   createProject(req, verifiedToken) {
@@ -44,9 +42,9 @@ class Service {
       )
   }
 
-  getProject(verifiedToken, projectId) {
-    const project = projectId.split(":")[2]
-    return db.get(`${verifiedToken.ulid}:project:${project}`)
+  getProject(req, verifiedToken) {
+    const projectId = req.params.projectId.split(":")
+    return db.get(`${verifiedToken.ulid}:project:${projectId[2]}`)
       .catch( err =>
         Promise.reject({
           error: `Не могу найти проект: ${err}`,
@@ -55,9 +53,23 @@ class Service {
       )
   }
 
-  deleteProject(verifiedToken, projectId) {
-    const project = projectId.split(":")
-    return db.destroy(`${verifiedToken.ulid}:project:${project[2]}`, `${project[3]}`)
+  updateProject(req, verifiedToken) {
+    const project = req.body
+    const projectId = project._id.split(":")[2]
+    project._id = `${verifiedToken.ulid}:project:${projectId}`
+    console.log("update", project)
+    return db.insert(project)
+    .catch( err =>
+        Promise.reject({
+          error: `Ошибка сохранения проекта: ${err}`,
+          status: 403,
+        })
+      )
+  }
+
+  deleteProject(req, verifiedToken) {
+    const projectId = req.params.projectId.split(":")[2]
+    return db.destroy(`${verifiedToken.ulid}:project:${projectId}`, req.query.rev)
     .catch( err =>
         Promise.reject({
           error: `Ошибка удаления проекта: ${err}`,
@@ -86,6 +98,7 @@ class Service {
     }
     return token;
   }
+
   async verifyToken(token) {
     console.log(token)
     const secret = process.env.TOKEN_PRIVATE_KEY;

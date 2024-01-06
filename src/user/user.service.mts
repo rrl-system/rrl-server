@@ -159,8 +159,8 @@ class UserService {
       return {
         login: user.username,
         picture: user.picture,
-        first_name: user.firstName,
-        last_name: user.lastName
+        firstName: user.firstName,
+        lastName: user.lastName
       }
     } else {
       return {
