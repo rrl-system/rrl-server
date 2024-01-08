@@ -23,10 +23,16 @@ router
     .route('/:projectId')
     .get(controller.get)
     .delete(controller.delete)
+    .post(controller.upload)
+
+router
+    .route('/:projectId/files')
+    .get(controller.show)
 
 router.use(function(err: any, req: Request, res: Response, next: NextFunction) {
     res.status(err.status || 500)
     .send(err);
 });
+
 
 export default router

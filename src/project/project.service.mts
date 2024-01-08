@@ -6,6 +6,12 @@ const db = nano.use('rrl-server')
 
 import jwt from 'jsonwebtoken';
 
+import multer from 'multer';
+
+import fs from 'fs';
+
+import path from 'path';
+
 class Service {
 
   get(req) {
@@ -30,6 +36,18 @@ class Service {
     return this.getToken(req)
       .then(token => this.verifyToken(token))
       .then(verifiedToken => this.deleteProject(req, verifiedToken))
+  }
+
+  upload(req) {
+    return this.getToken(req)
+      .then(token => this.verifyToken(token))
+      .then(() => this.uploadFile(req))
+  }
+
+  show(req) {
+    return this.getToken(req)
+      .then(token => this.verifyToken(token))
+      .then(() => this.showFiles(req))
   }
 
   createProject(req, verifiedToken) {
@@ -112,6 +130,81 @@ class Service {
     }
   }
 
+  showFiles(req) {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            const projectDocId = req.params.projectId;
+            let projectDoc = await db.get(projectDocId) as any;
+            console.log(projectDoc);
+
+            if (projectDoc.files && Array.isArray(projectDoc.files)) {
+                const files = projectDoc.files.map(fileName => ({
+                    name: fileName,
+                }));
+                resolve(files);
+            } else {
+                throw new Error("Файлы для этого проекта не найдены");
+            }
+        } catch (err) {
+            if (err.reason === "missing") {
+                reject({
+                    error: "Проект не найден",
+                    status: 404
+                });
+            } else {
+                reject({
+                    error: `Ошибка получения файлов: ${err.message}`,
+                    status: 500
+                });
+            }
+        }
+    });
+  }
+
+  uploadFile(req) {
+
+    const projectId = req.params.projectId.replace(/:/g, "-");
+
+    const storage = multer.diskStorage({
+
+      destination: function (req, file, cb) {
+        const destPath = path.join('uploads', projectId); 
+        fs.mkdirSync(destPath, { recursive: true }); 
+        cb(null, destPath);
+      },
+
+      filename: function (req, file, cb) {
+        cb(null, file.originalname);
+      }
+
+    });
+
+    const upload = multer({ storage: storage }).single('file');
+
+    return new Promise((resolve, reject) => {
+      upload(req, null, async function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          try {
+            const projectDocId = req.params.projectId;
+            let projectDoc = await db.get(projectDocId) as any;
+            projectDoc.files = projectDoc.files || [];
+            projectDoc.files.push(req.file.originalname); // Добавляем имя файла
+  
+            await db.insert(projectDoc);
+            resolve(req.file); // Возвращаем информацию о файле
+          } catch (error) {
+            reject({
+              error: `Ошибка при обновлении проекта с файлами: ${error.message}`,
+              status: 500
+            });
+          }
+        }
+      });
+    });
+  }
 }
 
 const service: Service = new Service()

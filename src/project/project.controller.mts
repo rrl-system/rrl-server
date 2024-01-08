@@ -29,6 +29,20 @@ class Controller {
       })
       .catch(next)
   }
+  upload(req, res, next) {
+    service.upload(req)
+      .then(file => {
+        res.status(200).send({message: "Файл успешно загружен", file: file})
+      })
+      .catch(next)
+  }
+  show(req, res, next) {
+    service.show(req)
+      .then( files => {
+        res.status(200).send(files)
+      })
+      .catch(next)
+  }
 }
 
 const controller: Controller = new Controller()
