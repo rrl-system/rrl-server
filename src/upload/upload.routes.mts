@@ -36,13 +36,14 @@ router.use(async (req: Request, res: Response, next: NextFunction) => {
 
 router
     .route('/')
-    .post(controller.upload(), controller.create)
+    .post(controller.create)
     .put(controller.update)
 
 router
     .route('/:projectId')
     .get(controller.get)
     .delete(controller.delete)
+    .post(controller.upload)
 
 router.use(function(err: any, req: Request, res: Response, next: NextFunction) {
     res.status(err.status || 500)

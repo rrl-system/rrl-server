@@ -8,8 +8,12 @@ class Controller {
       })
       .catch(next)
   }
-  upload() {
-    return service.upload()
+  upload(req, res, next) {
+    service.upload(req)
+      .then( result => {
+        res.status(200).send(result)
+      })
+      .catch(next)
   }
   create(req, res, next) {
     console.log(req)

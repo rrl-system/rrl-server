@@ -15,15 +15,15 @@ const host = process.env.SERVER_HOST
 const port = Number(process.env.SERVER_PORT)
 
 
-import multer from 'multer'
+// import multer from 'multer'
 
-const upload = multer({ dest: 'uploads/' })
+// const upload = multer({ dest: 'uploads/' })
 
-// app.post('/upload', upload.single('file'), function (req, res, next) {
-//   console.log(req)
-//   console.log(req.body)
-//   res.status(200).send({a: 1})
-// })
+// // app.post('/upload', upload.single('file'), function (req, res, next) {
+// //   console.log(req)
+// //   console.log(req.body)
+// //   res.status(200).send({a: 1})
+// // })
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
