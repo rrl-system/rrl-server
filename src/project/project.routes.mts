@@ -17,13 +17,13 @@ router.use(async (req: Request, res: Response, next: NextFunction) => {
 router
     .route('/')
     .post(controller.create)
-    .put(controller.update)
 
 router
     .route('/:projectId')
     .get(controller.get)
-    .delete(controller.delete)
     .post(controller.upload)
+    .put(controller.update)
+    .delete(controller.delete)
 
 router
     .route('/:projectId/files')
