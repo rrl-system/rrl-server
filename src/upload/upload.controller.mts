@@ -16,7 +16,6 @@ class Controller {
       .catch(next)
   }
   create(req, res, next) {
-    console.log(req)
     service.create(req)
       .then( result => {
         res.status(200).send(result)

@@ -10,6 +10,10 @@ import { fileURLToPath } from 'url'
 
 import multer from 'multer'
 
+import fs from 'fs';
+
+import path from 'path';
+
 class Service {
 
   get(req) {
@@ -30,15 +34,11 @@ class Service {
   }
 
   uploadFile(req, verifiedToken) {
-    const projectId = req.params.projectId.split(":")[2]
-    // project._id = `${verifiedToken.ulid}:project:${projectId}`
-    const destPath = 'uploads';
-
     const storage = multer.diskStorage({
-
       destination: function (req, file, cb) {
-        // const destPath = path.join('uploads', projectId);
-        // fs.mkdirSync(destPath, { recursive: true });
+        const projectId = req.params.projectId.split(":")[2]
+        let destPath = path.join('uploads', verifiedToken.ulid, `project-${projectId}`);
+        fs.mkdirSync(destPath, { recursive: true });
         cb(null, destPath);
       },
 
@@ -50,18 +50,18 @@ class Service {
 
     const upload = multer({ storage: storage }).single('file');
 
-    upload(req, null, err => {
-      if (err) {
-        return Promise.reject({
-          error: `Ошибка при загрузке файла: ${err.message}`,
-          status: 403
-        });
-      } else {
-        console.log(req)
-        Promise.resolve({upload: 'ok'})
-      }
+    return new Promise((resolve, reject) => {
+      upload(req, null, err => {
+        if (err) {
+          return reject({
+            error: `Ошибка при загрузке файла: ${err.message}`,
+            status: 403
+          });
+        } else {
+          return resolve({upload: 'ok'})
+        }
+      })
     })
-
   }
 
   // upload() {
