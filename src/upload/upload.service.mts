@@ -97,7 +97,19 @@ class Service {
   delete(req) {
     return this.getToken(req)
       .then(token => this.verifyToken(token))
-      .then(verifiedToken => this.createProject(req, verifiedToken))
+      .then(verifiedToken => this.deleteFiles(req, verifiedToken))
+  }
+
+  deleteFiles(req, verifiedToken) {
+    const projectId = req.params.projectId.split(":")[2]
+    const dir = path.join('uploads', verifiedToken.ulid, `project-${projectId}`);
+    try {
+      fs.rmSync(dir, { recursive: true, force: true });
+      return {delete: 'ok'}
+    }
+    catch (err) {
+      throw Error(`Ошибка удаления файла: ${err}}`)
+    }
   }
 
   uploadFiles(req, verifiedToken) {
