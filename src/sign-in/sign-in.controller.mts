@@ -1,8 +1,8 @@
-import signUpService from './sign-in.service.mjs'
+import signInService from './sign-in.service.mjs'
 
 class SignInController {
   userSignIn(req, res, next) {
-    signUpService.userSignIn(req)
+    signInService.userSignIn(req)
       .then((token) => {
         res.status(200).send({ token })
       })
