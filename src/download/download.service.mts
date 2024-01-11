@@ -32,23 +32,25 @@ class Service {
   }
 
   downloadFile(req, res, verifiedToken) {
-    const projectId = req.params.projectId.split(":")[2]
-    const filePath = path.join('uploads', verifiedToken.ulid, `project-${projectId}`);
-
+    const projectId = req.params.projectId.split(":")[2];
+    const dirPath = path.join('uploads', verifiedToken.ulid, `project-${projectId}`);
+    const filePath = path.join(dirPath, 'model.pkl');
+  
     if (fs.existsSync(filePath)) {
-        res.download(filePath, 'model.pkl', (err) => {
-            if (err) {
-                res.status(500).send({
-                    error: `Ошибка при скачивании файла: ${err.message}`
-                });
-            }
-        });
+      res.download(filePath, 'model.pkl', (err) => {
+        if (err) {
+          res.status(500).send({
+            error: `Ошибка при скачивании файла: ${err.message}`
+          });
+        }
+      });
     } else {
-        res.status(404).send({
-            error: 'Файл не найден'
-        });
+      res.status(404).send({
+        error: 'Файл не найден'
+      });
     }
   }
+  
 
   update(req) {
     return this.getToken(req)

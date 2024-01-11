@@ -10,10 +10,7 @@ class Controller {
   }
   download(req, res, next) {
     service.download(req, res)
-      .then( result => {
-        res.status(200).send(result)
-      })
-      .catch(next)
+      .catch(next);
   }
   create(req, res, next) {
     service.create(req)
