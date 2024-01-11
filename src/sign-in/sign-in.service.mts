@@ -16,7 +16,7 @@ const db = nano.use('rrl-users')
 
 import jwt from 'jsonwebtoken';
 
-class SingInService {
+class SignInService {
   checkMethod(req) {
     return (req.method === "POST") ? Promise.resolve("POST") :
       Promise.reject({
@@ -43,17 +43,17 @@ class SingInService {
 
   userSignIn(req) {
     console.log(req.body)
-    return (req.body.type === 'google') ? this.googleUserSingIn(req) : this.simpleUserSingIn(req)
+    return (req.body.type === 'google') ? this.googleUserSignIn(req) : this.simpleUserSignIn(req)
   }
 
-  simpleUserSingIn(req) {
+  simpleUserSignIn(req) {
     return this.verifyPassword(req)
     .then(() => this.getUserDB(req))
     .then(userDB => this.checkUserPassword(userDB, req))
     .then(userDB => this.createSimpleUserToken(userDB))
   }
 
-  googleUserSingIn(req) {
+  googleUserSignIn(req) {
     return this.verifyGoogleToken(req.body.token)
     .then(ticket => this.getGoogleUserId(ticket))
     .then(userId => this.getGoogleUserDB(userId))
@@ -132,6 +132,6 @@ class SingInService {
 
 }
 
-const singInService: SingInService = new SingInService()
+const signInService: SignInService = new SignInService()
 
-export default singInService
+export default signInService

@@ -2,14 +2,14 @@ import type { Express, Router, Request, Response, NextFunction} from 'express'
 
 import express from 'express'
 
-import singInService from './sign-in.service.mjs'
+import signInService from './sign-in.service.mjs'
 
 import singInController from './sign-in.controller.mjs'
 
 const router: Router = express.Router()
 
 router.use(async (req: Request, res: Response, next: NextFunction) => {
-    singInService.checkMethod(req)
+    signInService.checkMethod(req)
         .then (() => next())
         .catch(next)
 })
