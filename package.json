@@ -23,6 +23,7 @@
         "express": "^4.18.2",
         "google-auth-library": "^9.4.1",
         "jsonwebtoken": "^9.0.2",
+        "kafkajs": "^2.2.4",
         "multer": "^1.4.5-lts.1",
         "nano": "^10.1.2",
         "ulid": "^2.3.0",

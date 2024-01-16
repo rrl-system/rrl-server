@@ -8,6 +8,63 @@ import routes from './routes/index.mjs'
 
 import cors from 'cors'
 
+import { Kafka } from "kafkajs"
+
+// const kafka = new Kafka({
+//   clientId: "test-app",
+//   brokers: ["cs.rsu.edu.ru:9092"],
+// });
+
+// const producer = kafka.producer({
+//   maxInFlightRequests: 1,
+//   idempotent: true,
+//   transactionalId: "uniqueProducerId",
+// });
+
+// async function sendPayload(input: string) {
+//   try {
+//     await producer.send({
+//       topic: "testTopic",
+//       messages: [{ key: "test", value: input }],
+//     });
+//   } catch (e) {
+//     console.error("Caught Error while sending:", e);
+//   }
+// }
+
+// async function main() {
+//   await producer.connect();
+//   try {
+//     await sendPayload('Hello, from Nodejs');
+//   } catch (e) {
+//     console.error(e);
+//   }
+// }
+
+// main();
+
+const kafka = new Kafka({
+  clientId: "test-app",
+  brokers: ["cs.rsu.edu.ru:9092"],
+});
+
+const consumer = kafka.consumer({ groupId: "test-group" });
+const run = async () => {
+  await consumer.connect();
+  await consumer.subscribe({ topic: "testTopic", fromBeginning: true });
+
+  await consumer.run({
+    eachMessage: async ({ topic, partition, message }) => {
+      console.log("Received: ", {
+        partition,
+        offset: message.offset,
+        value: message.value.toString(),
+      });
+    },
+  });
+};
+run().catch(console.error);
+
 const app: Express = express()
 
 const host = process.env.SERVER_HOST
