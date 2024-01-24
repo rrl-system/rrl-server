@@ -51,8 +51,8 @@ class SignUpService {
       })
   }
 
-  createUser(req) {
-    return (req.body.type === 'google') ? this.googleUserCreate(req) : this.simpleUserCreate(req)
+  async createUser(req) {
+    return (req.body.type === 'google') ? this.googleUserCreate(req) : await this.simpleUserCreate(req)
   }
 
 
@@ -94,14 +94,30 @@ class SignUpService {
       .then(userDb => this.createGoogleUserToken(userDb, req))
   }
 
-  simpleUserCreate(req) {
-    return this.verifyPassword(req)
-      .then(() => this.createHash(req))
-      .then((hash) => this.hashPassword(hash,req))
-      .then(() => this.createSimpleUserObject(req))
-      .then((encodedUser) => this.checkSimpleUser(encodedUser))
-      .then(encodedUser => this.createSimpleUser(encodedUser))
-      .then(userDb => this.createSimpleUserToken(userDb, req))
+  async simpleUserCreate(req) {
+    await this.verifyPassword(req);
+    const hash = await(this.createHash(req))
+    console.log('createHash', hash)
+    await this.hashPassword(hash,req)
+    const encodedUser = await this.createSimpleUserObject(req)
+    console.log('createSimpleUserObject', encodedUser)
+    await this.checkSimpleUser(encodedUser)
+    const userProfileObject = await this.createSimpleUserProfileObject(req)
+    console.log('userProfileObject', userProfileObject)
+
+    const dbuser = await this.createSimpleUserProfile(req, userProfileObject)
+    console.log('dbuser', dbuser)
+    const userDb = await this.createSimpleUser(encodedUser)
+
+    return await this.createSimpleUserToken(userDb, req)
+    // return this.verifyPassword(req)
+    //   .then(() => this.createHash(req))
+    //   .then((hash) => this.hashPassword(hash,req))
+    //   .then(() => this.createSimpleUserObject(req))
+    //   .then(() => this.createSimpleUserObject(req))
+    //   .then((encodedUser) => this.checkSimpleUser(encodedUser))
+    //   .then(encodedUser => this.createSimpleUser(encodedUser))
+    //   .then(userDb => this.createSimpleUserToken(userDb, req))
   }
 
   createHash(req) {
@@ -144,11 +160,11 @@ class SignUpService {
   createSimpleUser(encodedUser) {
     console.log(encodedUser)
     return db.insert(encodedUser.data as object, `${encodedUser.id}:user`)
-    .catch( err =>
-      Promise.reject({
-        error: `Ошибка создания пользователя: ${err}`,
-        status: 500
-      })
+      .catch( err =>
+        Promise.reject({
+          error: `Ошибка создания пользователя: ${err}`,
+          status: 500
+        })
     )
   }
 
@@ -216,6 +232,25 @@ class SignUpService {
             data: simpleUserData}
   }
 
+  async createSimpleUserProfileObject(req) {
+    const simpleUserProfile = {
+      nickName: req.body.username,
+      email: req.body.email,
+      emailVerified: false
+    }
+    return {personalInfo: encode(JSON.stringify(simpleUserProfile))}
+  }
+
+  async createSimpleUserProfile(req, userProfileObject) {
+    return db.insert(userProfileObject as object, `${req.body.ulid}:user-profile`)
+    .catch( err =>
+        Promise.reject({
+          error: `Ошибка создания пользователя: ${err}`,
+          status: 500
+        })
+      )
+  }
+  
   async generateAccessToken() {
     // const payload = {
     //   id: user.id,
