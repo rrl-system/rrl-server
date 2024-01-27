@@ -8,7 +8,21 @@ import routes from './routes/index.mjs'
 
 import cors from 'cors'
 
-import { Kafka } from "kafkajs"
+import notificationService from './kafka/notification.service.mjs'
+
+const ulid = '01HMTNN1H8521P9SQ7A8J2AZAF';
+
+const main = async () => {
+  await notificationService.connectProducer();
+
+  const messageContent = 'Нейросеть завершила обучение!';
+
+  await notificationService.sendMessage(ulid, messageContent);
+};
+
+main().catch(console.error);
+
+// import { Kafka } from "kafkajs"
 
 // const kafka = new Kafka({
 //   clientId: "test-app",
@@ -43,7 +57,7 @@ import { Kafka } from "kafkajs"
 
 // main();
 
-const kafka = new Kafka({
+/* const kafka = new Kafka({
   clientId: "test-app",
   brokers: ["cs.rsu.edu.ru:9092"],
 });
@@ -63,7 +77,7 @@ const run = async () => {
     },
   });
 };
-run().catch(console.error);
+run().catch(console.error); */
 
 const app: Express = express()
 
@@ -93,6 +107,9 @@ app.use(function setCommonHeaders(req, res, next) {
 
 app.use(cors());
 
+const unreadNotifications = await notificationService.getUnreadNotifications(ulid);
+
+console.log(JSON.stringify(unreadNotifications));
 
 app.use('/api', routes)
 
