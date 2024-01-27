@@ -34,11 +34,18 @@ router.use(async (req: Request, res: Response, next: NextFunction) => {
 // })
 
 router
-    .route('/:projectId')
+    .route('/project/:projectId')
     .get(controller.get)
     .post(controller.upload)
     .delete(controller.delete)
     .put(controller.upload)
+
+router
+    .route('/avatar')
+    .get(controller.getAvatar)
+    .post(controller.uploadAvatar)
+    .delete(controller.delete)
+    .put(controller.uploadAvatar)
 
 router.use(function(err: any, req: Request, res: Response, next: NextFunction) {
     res.status(err.status || 500)

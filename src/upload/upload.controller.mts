@@ -8,8 +8,21 @@ class Controller {
       })
       .catch(next)
   }
+  getAvatar(req, res, next) {
+    service.getAvatar(req, res)
+      .catch(next)
+  }
+
   upload(req, res, next) {
     service.upload(req)
+      .then( result => {
+        res.status(200).send(result)
+      })
+      .catch(next)
+  }
+
+  uploadAvatar(req, res, next) {
+    service.uploadAvatar(req)
       .then( result => {
         res.status(200).send(result)
       })

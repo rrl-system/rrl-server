@@ -21,6 +21,11 @@ class Service {
       .then(token => this.verifyToken(token))
       .then(verifiedToken => this.getProjects(verifiedToken))
   }
+  getAvatar(req, res) {
+    return this.getToken(req)
+      .then(token => this.verifyToken(token))
+      .then(verifiedToken => this.getAvatarFile(req, res, verifiedToken))
+  }
 
   create(req) {
     return this.getToken(req)
@@ -33,6 +38,13 @@ class Service {
       .then(verifiedToken => this.uploadFile(req, verifiedToken))
   }
 
+  uploadAvatar(req) {
+    return this.getToken(req)
+      .then(token => this.verifyToken(token))
+      .then(verifiedToken => this.uploadAvatarFile(req, verifiedToken))
+  }
+
+
   uploadFile(req, verifiedToken) {
     const storage = multer.diskStorage({
       destination: function (req, file, cb) {
@@ -43,7 +55,7 @@ class Service {
       },
 
       filename: function (req, file, cb) {
-        cb(null, file.originalname);
+          cb(null, file.originalname);
       }
 
     });
@@ -64,6 +76,37 @@ class Service {
     })
   }
 
+  uploadAvatarFile(req, verifiedToken) {
+    const storage = multer.diskStorage({
+      destination: function (req, file, cb) {
+        let destPath = path.join('uploads', verifiedToken.ulid);
+        fs.mkdirSync(destPath, { recursive: true });
+        cb(null, destPath);
+      },
+
+      filename: function (req, file, cb) {
+          console.log(file);
+          // cb(null, "avatar"+file.originalname.slice((file.originalname.lastIndexOf(".") - 1 >>> 0) + 2));
+          cb(null, "avatar");
+      }
+
+    });
+
+    const upload = multer({ storage: storage }).single('file');
+
+    return new Promise((resolve, reject) => {
+      upload(req, null, err => {
+        if (err) {
+          return reject({
+            error: `Ошибка при загрузке файла: ${err.message}`,
+            status: 403
+          });
+        } else {
+          return resolve({upload: 'ok'})
+        }
+      })
+    })
+  }
   // upload() {
   //   const uploadDir = new URL('./files/', import.meta.url);
   //   const storage = multer.diskStorage({
@@ -134,8 +177,29 @@ class Service {
             status: 403
           })
         )
-    }
+  }
 
+  getAvatarFile(req, res, verifiedToken) {
+    const dirPath = path.join('uploads', verifiedToken.ulid);
+    console.log('dirPath', dirPath)
+    const filePath = path.join(dirPath, 'avatar');
+    console.log('filePath', filePath)
+
+    if (fs.existsSync(filePath)) {
+      res.download(filePath, 'avatar', (err) => {
+        console.log('AvatarPath')
+        if (err) {
+          res.status(500).send({
+            error: `Ошибка при скачивании файла: ${err.message}`
+          });
+        }
+      });
+    } else {
+      res.status(404).send({
+        error: 'Файл не найден'
+      });
+    }
+  }
   async hasAuthorizationHeader(req) {
     console.log('hasAuthorizationHeader')
     // console.log(path.dirname(import.meta.url))
