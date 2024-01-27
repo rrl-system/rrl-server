@@ -14,6 +14,7 @@ const ulid = '01HMTNN1H8521P9SQ7A8J2AZAF';
 
 const main = async () => {
   await notificationService.connectProducer();
+  await notificationService.connectConsumer();
 
   const messageContent = 'Нейросеть завершила обучение!';
 

@@ -1,4 +1,4 @@
-import { Kafka, Producer } from 'kafkajs';
+import { Kafka, Producer, Consumer } from 'kafkajs';
 
 import nano from '../couch-db/couch-db.mjs';
 
@@ -12,15 +12,23 @@ const kafka = new Kafka({
 });
 
 class NotificationService {
-    
+
     producer: Producer;
-    
+    consumer: Consumer;
+
     constructor() {
-        this.producer = kafka.producer(); 
+        this.producer = kafka.producer();
+        this.consumer = kafka.consumer({ groupId: "test-group" });
     }
 
     async connectProducer() {
         await this.producer.connect();
+    }
+
+    async connectConsumer() {
+        await this.consumer.connect();
+        await this.consumer.subscribe({ topic: "testTopic", fromBeginning: true });
+        await this.consumer.run({ eachMessage: this.getMessage });
     }
 
     async storeMessageInDB(message) {
@@ -40,7 +48,15 @@ class NotificationService {
             messages: [{ value: JSON.stringify(message) }]
         });
 
-        await this.storeMessageInDB(message);
+        // await this.storeMessageInDB(message);
+    }
+
+    async getMessage({ topic, partition, message }) {
+            console.log("Received: ", {
+                partition,
+                offset: message.offset,
+                value: message.value.toString(),
+            });
     }
 
     async markMessageAsRead(messageId) {
