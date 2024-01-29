@@ -12,6 +12,7 @@ import projectRoutes from '../project/project.routes.mjs'
 import uploadRoutes from '../upload/upload.routes.mjs'
 import downloadRoutes from '../download/download.routes.mjs'
 import userProfileRoutes from '../user-profile/user-profile.routes.mjs'
+import sseRoutes from '../sse/sse.routes.mjs'
 
 router.use('/sign-in', signInRoutes)
 router.use('/sign-up', signUpRoutes)
@@ -21,5 +22,6 @@ router.use('/project', projectRoutes)
 router.use('/upload', uploadRoutes)
 router.use('/download', downloadRoutes)
 router.use('/user-profile', userProfileRoutes)
+router.use('/sse', sseRoutes)
 
 export default router
