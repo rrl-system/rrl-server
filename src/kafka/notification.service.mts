@@ -38,6 +38,7 @@ class NotificationService {
     }
 
     async sendMessage(ulid, messageContent) {
+        console.log('sendMessage');
         const message = {
             ulid,
             messageContent,
@@ -70,13 +71,22 @@ class NotificationService {
             })
         )
         console.log('2222')
-        // const offset = {
-        //     _id: `${messageObj.ulid}:offset`,
-        //     offset:  messageObj.message.offset,
-        // }
+        const offset = {
+            _id: `${messageObj.ulid}:offset`,
+            offset:  messageObj.message.offset,
+        }
         try {
             console.log('3333')
-            const offsetDb = await db.get(`${messageObj.ulid}:offset`);
+            const offsetDb = await db.get(`${messageObj.ulid}:offset`).catch(() =>{
+                db.insert(messageDb, `${messageObj.ulid}:${message.offset}`)
+                .catch( err =>
+
+                    Promise.reject({
+                    error: `Ошибка создания сообщения: ${err}`,
+                    status: 500
+                    })
+                )
+            });
             console.log(offsetDb)
             console.log('444')
         }
