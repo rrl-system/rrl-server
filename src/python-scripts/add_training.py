@@ -5,6 +5,7 @@ import pandas as pd
 from darts import TimeSeries
 from darts.dataprocessing.transformers import Scaler
 import os
+from confluent_kafka import Producer
 
 # Файл для логгирования 
 sys.stderr = open('log.txt', 'w')
@@ -12,6 +13,8 @@ sys.stderr = open('log.txt', 'w')
 ulid = sys.argv[2]
 
 project = sys.argv[3]
+
+steps = int(sys.argv[4])
 
 path = f"uploads\{ulid}\{project}\model.pkl"
 
@@ -25,11 +28,15 @@ file_id = google_drive_url.split('/d/')[1].split('/view')[0]
 
 download_url = f"https://drive.google.com/uc?id={file_id}"
 
-# Путь для сохранения файла данных
-if not os.path.exists('uploads/%s/%s' %(ulid, project)):
-    os.makedirs('uploads/%s/%s' %(ulid, project))
+print(download_url)
 
-local_file_path = "models/user_%s/data.csv" %(sys.argv[3])
+# Путь для сохранения файла данных
+if not os.path.exists('uploads\%s\%s' %(ulid, project)):
+    os.makedirs('uploads\%s\%s' %(ulid, project))
+
+local_file_path = "uploads\%s\%s\data.csv" %(ulid, project)
+
+print(local_file_path)
 
 # Скачивание файла
 gdown.download(download_url, local_file_path, quiet=False)
@@ -41,7 +48,29 @@ train_scaler = Scaler()
 
 scaled_train = train_scaler.fit_transform(training_data)
 
-model.fit(scaled_train, epochs=int(sys.argv[2]))
+model.fit(scaled_train, epochs = steps)
 
-# Сохранение дообученной модели
-model.save("models/user_%s/model.pkl" %(sys.argv[3]))
+model.save("uploads/%s/%s/model.pkl" %(ulid, project))
+
+def delivery_report(err, msg):
+    if err is not None:
+        print(f"Сообщение не удалось доставить: {err}")
+    else:
+        print(f"Сообщение доставлено в {msg.topic()} [{msg.partition()}]")
+
+conf = {
+    'bootstrap.servers': 'cs.rsu.edu.ru:9092',  # Список брокеров
+    'client.id': 'rrl-app'  # ID клиента
+}
+
+producer = Producer(**conf)
+
+topic = 'testTopic'
+
+try:
+    message = 'Скрипт завершил работу!'
+    producer.produce(topic, message.encode('utf-8'), callback=delivery_report)
+except Exception as e:
+    print(f"Возникла ошибка при отправке сообщения: {e}")
+
+producer.flush()
