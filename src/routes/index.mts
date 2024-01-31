@@ -25,5 +25,7 @@ router.use('/upload', uploadRoutes)
 router.use('/download', downloadRoutes)
 router.use('/user-profile', userProfileRoutes)
 router.use('/sse', sseRoutes)
+router.use('/notifications', notificationsRoutes)
+router.use('/neural-data', neuralDataRoutes)
 
 export default router
