@@ -1,5 +1,6 @@
-Traceback (most recent call last):
-  File "c:\Users\Даниил\Desktop\Диплом\rrl-server\src\python-scripts\add_training.py", line 12, in <module>
-    ulid = sys.argv[2]
-           ~~~~~~~~^^^
-IndexError: list index out of range
+Downloading...
+From: https://drive.google.com/uc?id=1HV-xZavp3RuJkPbvjyhVe9oiR333bzq7
+To: C:\Users\Даниил\Desktop\Диплом\rrl-server\uploads\01HJNCQJVFEM9K924F9EX0ZVHE\project-01HKDPBPV2M73MQX3RJ7CWXV0N\data.csv
+  0%|                                                                                                                                                       | 0.00/665k [00:00<?, ?B/s] 79%|################################################################################################################7                              | 524k/665k [00:00<00:00, 1.74MB/s]100%|###############################################################################################################################################| 665k/665k [00:00<00:00, 2.04MB/s]
+C:\Users\Даниил\AppData\Local\Programs\Python\Python311\Lib\site-packages\pytorch_lightning\trainer\configuration_validator.py:74: You defined a `validation_step` but have no `val_dataloader`. Skipping val loop.
+C:\Users\Даниил\AppData\Local\Programs\Python\Python311\Lib\site-packages\pytorch_lightning\trainer\connectors\data_connector.py:441: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=15` in the `DataLoader` to improve performance.
