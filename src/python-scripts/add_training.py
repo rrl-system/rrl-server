@@ -13,6 +13,8 @@ ulid = sys.argv[2]
 
 project = sys.argv[3]
 
+steps = int(sys.argv[4])
+
 path = f"uploads\{ulid}\{project}\model.pkl"
 
 # Загрузка модели
@@ -29,7 +31,7 @@ download_url = f"https://drive.google.com/uc?id={file_id}"
 if not os.path.exists('uploads/%s/%s' %(ulid, project)):
     os.makedirs('uploads/%s/%s' %(ulid, project))
 
-local_file_path = "models/user_%s/data.csv" %(sys.argv[3])
+local_file_path = "uploads/%s/%s/data.csv" %(ulid, project)
 
 # Скачивание файла
 gdown.download(download_url, local_file_path, quiet=False)
@@ -41,7 +43,7 @@ train_scaler = Scaler()
 
 scaled_train = train_scaler.fit_transform(training_data)
 
-model.fit(scaled_train, epochs=int(sys.argv[2]))
+model.fit(scaled_train, epochs = steps)
 
 # Сохранение дообученной модели
-model.save("models/user_%s/model.pkl" %(sys.argv[3]))
+model.save("uploads/%s/%s/model.pkl" %(ulid, project))
