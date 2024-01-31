@@ -13,6 +13,7 @@ import uploadRoutes from '../upload/upload.routes.mjs'
 import downloadRoutes from '../download/download.routes.mjs'
 import userProfileRoutes from '../user-profile/user-profile.routes.mjs'
 import sseRoutes from '../sse/sse.routes.mjs'
+import neuralDataRoutes from '../neural-data/neural-data.routes.mjs'
 import notificationsRoutes from '../notifications/notifications.routes.mjs'
 
 router.use('/sign-in', signInRoutes)
@@ -24,6 +25,5 @@ router.use('/upload', uploadRoutes)
 router.use('/download', downloadRoutes)
 router.use('/user-profile', userProfileRoutes)
 router.use('/sse', sseRoutes)
-router.use('/notifications', notificationsRoutes)
 
 export default router
