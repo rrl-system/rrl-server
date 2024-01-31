@@ -82,9 +82,9 @@ class Service {
   getClient(verifiedToken, res) {
       console.log('4')
       this.addClient(verifiedToken.ulid, res)
-      setInterval(() => {
-        this.sendMessageToClient(verifiedToken.ulid,"Hello, SSE")
-      }, 5000)
+      // setInterval(() => {
+      //   this.sendMessageToClient(verifiedToken.ulid,"Hello, SSE")
+      // }, 5000)
       return verifiedToken;
       // db.partitionedList(verifiedToken.ulid,{ include_docs: true, start_key: `${verifiedToken.ulid}:project:0`, end_key: `${verifiedToken.ulid}:project:f`})
         // .catch( err =>

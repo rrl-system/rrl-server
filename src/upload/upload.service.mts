@@ -50,11 +50,13 @@ class Service {
       destination: function (req, file, cb) {
         const projectId = req.params.projectId.split(":")[2]
         let destPath = path.join('uploads', verifiedToken.ulid, `project-${projectId}`);
+        console.log(destPath)
         fs.mkdirSync(destPath, { recursive: true });
         cb(null, destPath);
       },
 
       filename: function (req, file, cb) {
+          console.log(file.originalname)
           cb(null, file.originalname);
       }
 
