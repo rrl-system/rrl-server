@@ -4,6 +4,11 @@ import * as ULID from 'ulid';
 
 const db = nano.use('rrl-notifications')
 
+import {AsyncDatabase} from 'promised-sqlite3';
+
+const sqliteDb = await AsyncDatabase.open('./db.sqlite');
+
+
 import jwt from 'jsonwebtoken';
 
 class Service {
@@ -11,7 +16,7 @@ class Service {
   get(req) {
     return this.getToken(req)
       .then(token => this.verifyToken(token))
-      .then(verifiedToken => this.getProjects(verifiedToken, req.query?.limit))
+      .then(verifiedToken => this.getProjects(verifiedToken))
   }
 
   create(req) {
@@ -32,27 +37,23 @@ class Service {
       .then(verifiedToken => this.createProject(req, verifiedToken))
   }
 
-  createProject(req, verifiedToken) {
-    return db.insert(req.body, `${verifiedToken.ulid}:project:${ULID.ulid()}`)
-    .catch( err =>
-        Promise.reject({
-          error: `Ошибка создания проекта: ${err}`,
-          status: 500
-        })
-      )
+  async createProject(req, verifiedToken) {
+    console.log(req.bod)
+    return await sqliteDb.run("INSERT INTO 'rrl-offsets' (id, offset) VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET offset=excluded.offset;", [
+      `${verifiedToken.ulid}:current-offset`,
+      req.body.offset
+    ]);
+
   }
 
-  getProjects(verifiedToken, limit) {
-      console.log(verifiedToken)
-
-      return db.partitionedList(verifiedToken.ulid,{ include_docs: true, limit, start_key: `${verifiedToken.ulid}:0`, end_key: `${verifiedToken.ulid}:f`})
-        .catch( err =>
-          Promise.reject({
-            error: `Не могу найти список проектов: ${err}`,
-            status: 403
-          })
-        )
+  async getProjects(verifiedToken) {
+    const currentOffset: any = await sqliteDb.get("SELECT * FROM 'rrl-offsets' WHERE id = ?", `${verifiedToken.ulid}:current-offset`);
+    const maxOffset: any = await sqliteDb.get("SELECT * FROM 'rrl-offsets' WHERE id = ?", `${verifiedToken.ulid}:offset`);
+    return {
+      'currentOffset': currentOffset?.offset,
+      'maxOffset': maxOffset?.offset
     }
+  }
 
   async hasAuthorizationHeader(req) {
     if (!req.headers['authorization'])

@@ -35,8 +35,9 @@ class Service {
   }
 
   sendEventMessageToClient(clientId: string, event: string, message: string) {
+      console.log('222')
       const data = `event: ${event}\ndata: ${message}\nid: ${Service.getUlid()}\n\n`;
-      Service.client(clientId).write(data);
+      Service.client(clientId)?.write(data);
   }
 
   sendRetryToClient(clientId: string, message: string) {

@@ -15,6 +15,8 @@ import userProfileRoutes from '../user-profile/user-profile.routes.mjs'
 import sseRoutes from '../sse/sse.routes.mjs'
 import neuralDataRoutes from '../neural-data/neural-data.routes.mjs'
 import notificationsRoutes from '../notifications/notifications.routes.mjs'
+import learnModelRoutes from '../learn-model/learn-model.routes.mjs'
+import notificationOffsetRoutes from '../notification-offset/notification-offset.routes.mjs'
 
 router.use('/sign-in', signInRoutes)
 router.use('/sign-up', signUpRoutes)
@@ -27,5 +29,7 @@ router.use('/user-profile', userProfileRoutes)
 router.use('/sse', sseRoutes)
 router.use('/notifications', notificationsRoutes)
 router.use('/neural-data', neuralDataRoutes)
+router.use('/learn-model', learnModelRoutes)
+router.use('/notification-offset', notificationOffsetRoutes)
 
 export default router

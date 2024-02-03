@@ -2,16 +2,18 @@ import nano from '../couch-db/couch-db.mjs'
 
 import * as ULID from 'ulid';
 
-const db = nano.use('rrl-notifications')
+const db = nano.use('rrl-server')
 
 import jwt from 'jsonwebtoken';
+
+import {spawn} from 'child_process'
 
 class Service {
 
   get(req) {
     return this.getToken(req)
       .then(token => this.verifyToken(token))
-      .then(verifiedToken => this.getProjects(verifiedToken, req.query?.limit))
+      .then(verifiedToken => this.getProjects(verifiedToken, req))
   }
 
   create(req) {
@@ -42,17 +44,20 @@ class Service {
       )
   }
 
-  getProjects(verifiedToken, limit) {
-      console.log(verifiedToken)
+  getProjects(verifiedToken,req) {
+    const pyProg = spawn('C:\Users\\vaant\\AppData\\Local\\Programs\\Python\\Python311\\python.exe',
+    ['.\\src\\python-scripts\\learning.py', verifiedToken.ulid, req.params.projectId, req.query.epochs]);
 
-      return db.partitionedList(verifiedToken.ulid,{ include_docs: true, limit, start_key: `${verifiedToken.ulid}:0`, end_key: `${verifiedToken.ulid}:f`})
-        .catch( err =>
-          Promise.reject({
-            error: `Не могу найти список проектов: ${err}`,
-            status: 403
-          })
-        )
-    }
+
+    pyProg.stdout.on('data', function(data) {
+      console.log('stdon:', data.toString());
+    });
+    pyProg.stderr.on('data', (data) => {
+      console.log('stderr:', data.toString().length, 'chars');
+      // rej(data.toString());
+    });
+
+  }
 
   async hasAuthorizationHeader(req) {
     if (!req.headers['authorization'])
@@ -86,6 +91,7 @@ class Service {
       });
     }
   }
+
 }
 
 const service: Service = new Service()

@@ -12,13 +12,15 @@ import notificationService from './kafka/notification.service.mjs'
 
 const ulid = '01HMTNN1H8521P9SQ7A8J2AZAF';
 
+import * as sqlite3 from 'sqlite3';
+
+const db = new sqlite3.default.Database(':memory:');
+
 const main = async () => {
   await notificationService.connectProducer();
   await notificationService.connectConsumer();
-
   const messageContent = 'Нейросеть завершила обучение!';
-
-  await notificationService.sendMessage(ulid, messageContent);
+  setInterval(() => notificationService.sendMessage(ulid, messageContent), 10000)
 };
 
 main().catch(console.error);

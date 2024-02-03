@@ -26,6 +26,8 @@
         "kafkajs": "^2.2.4",
         "multer": "^1.4.5-lts.1",
         "nano": "^10.1.2",
+        "promised-sqlite3": "^2.1.0",
+        "sqlite3": "^5.1.7",
         "ulid": "^2.3.0",
         "uuid": "^9.0.1"
     },

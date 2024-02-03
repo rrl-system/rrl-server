@@ -19,16 +19,16 @@ steps = int(sys.argv[4])
 path = f"uploads\{ulid}\{project}\model.pkl"
 
 # Загрузка модели
-model = ITSASModel.load(path)
+# model = ITSASModel.load(path)
 
 # Ссылка на файл для дообучения на Google Диске
-google_drive_url = sys.argv[1]
+# google_drive_url = sys.argv[1]
 
-file_id = google_drive_url.split('/d/')[1].split('/view')[0]
+# file_id = google_drive_url.split('/d/')[1].split('/view')[0]
 
-download_url = f"https://drive.google.com/uc?id={file_id}"
+# download_url = f"https://drive.google.com/uc?id={file_id}"
 
-print(download_url)
+# print(download_url)
 
 # Путь для сохранения файла данных
 if not os.path.exists('uploads\%s\%s' %(ulid, project)):
@@ -39,7 +39,7 @@ local_file_path = "uploads\%s\%s\data.csv" %(ulid, project)
 print(local_file_path)
 
 # Скачивание файла
-gdown.download(download_url, local_file_path, quiet=False)
+# gdown.download(download_url, local_file_path, quiet=False)
 
 # Загрузка данных для дообучения
 training_data = TimeSeries.from_csv(local_file_path, time_col='date')
