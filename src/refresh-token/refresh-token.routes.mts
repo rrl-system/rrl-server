@@ -2,17 +2,17 @@ import type { Express, Router, Request, Response, NextFunction} from 'express'
 
 import express from 'express'
 
-import service from './sse.service.mjs'
+import controller from './refresh-token.controller.mjs'
 
-import controller from './sse.controller.mjs'
+import service from './refresh-token.service.mjs'
 
 const router: Router = express.Router()
 
-router.use(async (req: Request, res: Response, next: NextFunction) => {
-    service.hasAuthorizationHeader(req)
-        .then (() => next())
-        .catch(next)
-})
+// router.use(async (req: Request, res: Response, next: NextFunction) => {
+//     service.hasAuthorizationHeader(req)
+//         .then (() => next())
+//         .catch(next)
+// })
 
 router
     .route('/')

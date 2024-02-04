@@ -17,6 +17,7 @@ import neuralDataRoutes from '../neural-data/neural-data.routes.mjs'
 import notificationsRoutes from '../notifications/notifications.routes.mjs'
 import learnModelRoutes from '../learn-model/learn-model.routes.mjs'
 import notificationOffsetRoutes from '../notification-offset/notification-offset.routes.mjs'
+import refreshTokenRoutes from '../refresh-token/refresh-token.routes.mjs'
 
 router.use('/sign-in', signInRoutes)
 router.use('/sign-up', signUpRoutes)
@@ -31,5 +32,6 @@ router.use('/notifications', notificationsRoutes)
 router.use('/neural-data', neuralDataRoutes)
 router.use('/learn-model', learnModelRoutes)
 router.use('/notification-offset', notificationOffsetRoutes)
+router.use('/refresh-token', refreshTokenRoutes)
 
 export default router

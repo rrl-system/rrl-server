@@ -35,7 +35,7 @@ class Service {
     const projectId = req.params.projectId.split(":")[2];
     const dirPath = path.join('uploads', verifiedToken.ulid, `project-${projectId}`);
     const filePath = path.join(dirPath, 'model.pkl');
-  
+
     if (fs.existsSync(filePath)) {
       res.download(filePath, 'model.pkl', (err) => {
         if (err) {
@@ -50,7 +50,7 @@ class Service {
       });
     }
   }
-  
+
 
   update(req) {
     return this.getToken(req)
@@ -131,7 +131,7 @@ class Service {
     } catch (error) {
       return Promise.reject({
         error: `Ошибка верификации токена: ${error.message}`,
-        status: 403
+        status: 419
       });
     }
   }

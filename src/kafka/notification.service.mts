@@ -5,10 +5,11 @@ import {AsyncDatabase} from 'promised-sqlite3';
 import nano from '../couch-db/couch-db.mjs';
 
 import { DocumentGetResponse } from 'nano';
+
 import sseServer from '../sse/sse.service.mjs';
 
 const db = nano.use('rrl-notifications');
-// const offsetDb = nano.use('rrl-offsets');
+// const offsetDb = nano.use('offsets');
 
 const kafka = new Kafka({
   clientId: 'rrl-app',
@@ -102,11 +103,11 @@ class NotificationService {
             })
             )
         console.log(message.offset);
-        await sqlDb.run("INSERT INTO 'rrl-offsets' (id, offset) VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET offset=excluded.offset;", [
+        await sqlDb.run("INSERT INTO 'offsets' (id, offset) VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET offset=excluded.offset;", [
             `${messageObj.ulid}:offset`,
             message.offset
         ]);
-        // const row = await sqlDb.get("SELECT * FROM 'rrl-offsets' WHERE id = ?",  `${messageObj.ulid}:offset`);
+        // const row = await sqlDb.get("SELECT * FROM 'offsets' WHERE id = ?",  `${messageObj.ulid}:offset`);
         // console.log('1133')
         // console.log(row);
         // try {

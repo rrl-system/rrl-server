@@ -16,6 +16,8 @@ const db = nano.use('rrl-users')
 
 import jwt from 'jsonwebtoken';
 
+import refreshTokenService from '../refresh-token/refresh-token.service.mjs'
+
 class SignInService {
   checkMethod(req) {
     return (req.method === "POST") ? Promise.resolve("POST") :
@@ -50,14 +52,14 @@ class SignInService {
     return this.verifyPassword(req)
     .then(() => this.getUserDB(req))
     .then(userDB => this.checkUserPassword(userDB, req))
-    .then(userDB => this.createSimpleUserToken(userDB))
+    .then(userDB => refreshTokenService.getTokens({ulid: userDB.ulid, id: userDB._id}))
   }
 
   googleUserSignIn(req) {
     return this.verifyGoogleToken(req.body.token)
     .then(ticket => this.getGoogleUserId(ticket))
     .then(userId => this.getGoogleUserDB(userId))
-    .then(userDB => this.createSimpleUserToken(userDB))
+    // .then(userDB => refreshTokenService.getTokens({ulid: userDB.ulid, id: userDB._id}))
   }
 
   async verifyGoogleToken(token) {
@@ -85,7 +87,19 @@ class SignInService {
     )
   }
 
-  async createSimpleUserToken(user) {
+
+  async createSimpleUserAccessToken(user) {
+    const payload = {
+      id: user._id,
+      ulid: user.ulid
+    };
+    console.log("payload",payload)
+    const secret =  process.env.TOKEN_PRIVATE_KEY
+    const options = { expiresIn: '1h' };
+    return jwt.sign(payload, secret, options);
+  }
+
+  async createSimpleUserRefreshToken(user) {
     const payload = {
       id: user._id,
       ulid: user.ulid

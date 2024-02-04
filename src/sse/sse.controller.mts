@@ -4,7 +4,7 @@ import type { IncomingMessage, ServerResponse } from 'http'
 
 class Controller {
   get(req: IncomingMessage, res, next) {
-    console.log('2')
+
     const headers = {
       'Content-Type': 'text/event-stream',
       'Connection': 'keep-alive',
@@ -15,10 +15,9 @@ class Controller {
     //   service.deleteClient(req);
     // });
 
-    service.get(req, res).then( result => {
-      console.log('3')
+    service.get(req, res).then( result =>
       res.writeHead(200, headers)
-    })
+    )
     .catch(next)
   }
   // get(req, res, next) {

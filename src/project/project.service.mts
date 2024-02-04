@@ -125,7 +125,7 @@ class Service {
     } catch (error) {
       return Promise.reject({
         error: `Ошибка верификации токена: ${error.message}`,
-        status: 403
+        status: 419
       });
     }
   }
@@ -169,8 +169,8 @@ class Service {
     const storage = multer.diskStorage({
 
       destination: function (req, file, cb) {
-        const destPath = path.join('uploads', projectId); 
-        fs.mkdirSync(destPath, { recursive: true }); 
+        const destPath = path.join('uploads', projectId);
+        fs.mkdirSync(destPath, { recursive: true });
         cb(null, destPath);
       },
 
@@ -192,7 +192,7 @@ class Service {
             let projectDoc = await db.get(projectDocId) as any;
             projectDoc.files = projectDoc.files || [];
             projectDoc.files.push(req.file.originalname); // Добавляем имя файла
-  
+
             await db.insert(projectDoc);
             resolve(req.file); // Возвращаем информацию о файле
           } catch (error) {

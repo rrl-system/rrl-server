@@ -8,6 +8,8 @@ import routes from './routes/index.mjs'
 
 import cors from 'cors'
 
+import cookieparser from 'cookie-parser'
+
 import notificationService from './kafka/notification.service.mjs'
 
 const ulid = '01HMTNN1H8521P9SQ7A8J2AZAF';
@@ -20,7 +22,7 @@ const main = async () => {
   await notificationService.connectProducer();
   await notificationService.connectConsumer();
   const messageContent = 'Нейросеть завершила обучение!';
-  setInterval(() => notificationService.sendMessage(ulid, messageContent), 10000)
+  // setInterval(() => notificationService.sendMessage(ulid, messageContent), 10000)
 };
 
 main().catch(console.error);
@@ -101,6 +103,7 @@ const port = Number(process.env.SERVER_PORT)
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(cookieparser());
 
 app.use(function setCommonHeaders(req, res, next) {
     res.set("Access-Control-Allow-Private-Network", "true");
@@ -108,7 +111,11 @@ app.use(function setCommonHeaders(req, res, next) {
     next();
   });
 
-app.use(cors());
+const corsoption={
+  origin:"http://localhost:52330",
+  credentials:true
+  }
+app.use(cors(corsoption));
 
 const unreadNotifications = await notificationService.getUnreadNotifications(ulid);
 

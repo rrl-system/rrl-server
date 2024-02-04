@@ -8,7 +8,6 @@ import {AsyncDatabase} from 'promised-sqlite3';
 
 const sqliteDb = await AsyncDatabase.open('./db.sqlite');
 
-
 import jwt from 'jsonwebtoken';
 
 class Service {
@@ -39,7 +38,7 @@ class Service {
 
   async createProject(req, verifiedToken) {
     console.log(req.bod)
-    return await sqliteDb.run("INSERT INTO 'rrl-offsets' (id, offset) VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET offset=excluded.offset;", [
+    return await sqliteDb.run("INSERT INTO 'offsets' (id, offset) VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET offset=excluded.offset;", [
       `${verifiedToken.ulid}:current-offset`,
       req.body.offset
     ]);
@@ -47,8 +46,8 @@ class Service {
   }
 
   async getProjects(verifiedToken) {
-    const currentOffset: any = await sqliteDb.get("SELECT * FROM 'rrl-offsets' WHERE id = ?", `${verifiedToken.ulid}:current-offset`);
-    const maxOffset: any = await sqliteDb.get("SELECT * FROM 'rrl-offsets' WHERE id = ?", `${verifiedToken.ulid}:offset`);
+    const currentOffset: any = await sqliteDb.get("SELECT * FROM 'offsets' WHERE id = ?", `${verifiedToken.ulid}:current-offset`);
+    const maxOffset: any = await sqliteDb.get("SELECT * FROM 'offsets' WHERE id = ?", `${verifiedToken.ulid}:offset`);
     return {
       'currentOffset': currentOffset?.offset,
       'maxOffset': maxOffset?.offset
@@ -81,10 +80,18 @@ class Service {
     try {
       return jwt.verify(token, secret);
     } catch (error) {
-      return Promise.reject({
-        error: `Ошибка верификации токена: ${error.message}`,
-        status: 403
-      });
+      if (error instanceof jwt.TokenExpiredError) {
+        return Promise.reject({
+          error: `Срок действия токена истек: ${error.expiredAt}`,
+          status: 419
+        });
+      }
+      else {
+        return Promise.reject({
+          error: `Ошибка верификации токена: ${error.message}`,
+          status: 419
+        });
+      }
     }
   }
 }

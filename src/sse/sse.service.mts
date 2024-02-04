@@ -81,7 +81,6 @@ class Service {
   }
 
   getClient(verifiedToken, res) {
-      console.log('4')
       this.addClient(verifiedToken.ulid, res)
       // setInterval(() => {
       //   this.sendMessageToClient(verifiedToken.ulid,"Hello, SSE")
@@ -124,7 +123,7 @@ class Service {
     } catch (error) {
       return Promise.reject({
         error: `Ошибка верификации токена: ${error.message}`,
-        status: 403
+        status: 419
       });
     }
   }

@@ -81,7 +81,7 @@ class Service {
     } catch (error) {
       return Promise.reject({
         error: `Ошибка верификации токена: ${error.message}`,
-        status: 403
+        status: 419
       });
     }
   }
