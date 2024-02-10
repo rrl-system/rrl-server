@@ -4,11 +4,11 @@ import {AsyncDatabase} from 'promised-sqlite3';
 
 import nano from '../couch-db/couch-db.mjs';
 
-import { DocumentGetResponse } from 'nano';
+// import { DocumentGetResponse } from 'nano';
 
 import sseServer from '../sse/sse.service.mjs';
 
-const db = nano.use('rrl-notifications');
+const db = nano.use('rrl-project-statuses');
 // const offsetDb = nano.use('offsets');
 
 const kafka = new Kafka({
@@ -49,7 +49,7 @@ class NotificationService {
 
     constructor() {
         this.producer = kafka.producer();
-        this.consumer = kafka.consumer({ groupId: "test-group" });
+        this.consumer = kafka.consumer({ groupId: "project-status-group" });
     }
 
     async connectProducer() {
@@ -57,10 +57,9 @@ class NotificationService {
     }
 
     async connectConsumer() {
-
-        console.log('Consumer');
+        console.log('Start Project Status Consumer');
         await this.consumer.connect();
-        await this.consumer.subscribe({ topic: "testTopic", fromBeginning: true });
+        await this.consumer.subscribe({ topic: "project-status", fromBeginning: true });
         await this.consumer.run({ eachMessage: this.getMessage });
     }
 
@@ -68,33 +67,29 @@ class NotificationService {
         await db.insert(message);
     }
 
-    async sendMessage(ulid, messageContent) {
+    async sendMessage(ulid, content) {
         console.log('sendMessage');
         const message = {
             ulid,
-            messageContent,
+            content,
             timestamp: Number(new Date()),
-            isRead: false
         };
 
         await this.producer.send({
-            topic: 'testTopic',
+            topic: 'project-status',
             messages: [{ value: JSON.stringify(message) }]
         });
-
-        // await this.storeMessageInDB(message);
     }
 
     async getMessage({ topic, partition, message }) {
         console.log(message.value);
         const messageObj = JSON.parse(message.value)
-        console.log(messageObj);
+        const clientId = messageObj.ulid.split(":")[0]
         const messageDb = {
             _id: `${messageObj.ulid}:${String(message.offset).padStart(19,'0')}`,
-            content:  messageObj.messageContent,
+            status: messageObj.content,
             timestamp: messageObj.timestamp,
         }
-
         await db.insert(messageDb, messageDb._id)
         .catch( err =>
             Promise.reject({
@@ -102,10 +97,19 @@ class NotificationService {
                 status: 500
             })
             )
-        console.log(message.offset);
-        await sqlDb.run("INSERT INTO 'offsets' (id, offset) VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET offset=excluded.offset;", [
-            `${messageObj.ulid}:offset`,
-            message.offset
+
+        const sqlObject = {
+            _id: messageObj.ulid,
+            status: messageDb.status,
+            timestamp: messageDb.timestamp,
+            offset: String(message.offset).padStart(19,'0'),
+        }
+
+        await sqlDb.run("INSERT INTO 'statuses' (_id, status, timestamp, offset) VALUES (?, ?, ?, ?) ON CONFLICT (_id) DO UPDATE SET status=excluded.status, timestamp=excluded.timestamp, offset=excluded.offset;", [
+            sqlObject._id,
+            sqlObject.status,
+            sqlObject.timestamp,
+            sqlObject.offset,
         ]);
         // const row = await sqlDb.get("SELECT * FROM 'offsets' WHERE id = ?",  `${messageObj.ulid}:offset`);
         // console.log('1133')
@@ -138,11 +142,12 @@ class NotificationService {
         //             })
         //         )               }
         //     );
-        console.log('11222')
-        console.log(sseServer)
+        // console.log('11222')
+        // console.log(sseServer)
 
-        sseServer.sendEventMessageToClient(messageObj.ulid, 'maxoffset', message.offset)
-        console.log('11233')
+
+        console.log(clientId)
+        sseServer.sendEventMessageToClient(clientId, 'project-status', JSON.stringify(sqlObject))
         // console.log(offsetObj)
 
         // catch (err) {
@@ -152,7 +157,7 @@ class NotificationService {
         //         status: 500
         //         })
         // }
-        console.log('444')
+        // console.log('444')
 
         // db.insert(messageDb, `${messageObj.ulid}:${message.offset}`)
         //   .catch( err =>
@@ -185,26 +190,26 @@ class NotificationService {
         //     });
     }
 
-    async markMessageAsRead(messageId) {
-        const message: DocumentGetResponse & { isRead?: boolean } = await db.get(messageId);
-        if (message && message.isRead !== undefined) {
-            message.isRead = true;
-            await db.insert(message);
-        } else {
-            throw new Error('Уведомление не найдено или испорчено');
-        }
-    }
+    // async markMessageAsRead(messageId) {
+    //     const message: DocumentGetResponse & { isRead?: boolean } = await db.get(messageId);
+    //     if (message && message.isRead !== undefined) {
+    //         message.isRead = true;
+    //         await db.insert(message);
+    //     } else {
+    //         throw new Error('Уведомление не найдено или испорчено');
+    //     }
+    // }
 
-    async getUnreadNotifications(ulid) {
-        const query = {
-            selector: { ulid, isRead: false },
-            fields: ['_id', 'messageContent', 'timestamp']
-        };
+    // async getUnreadNotifications(ulid) {
+    //     const query = {
+    //         selector: { ulid, isRead: false },
+    //         fields: ['_id', 'messageContent', 'timestamp']
+    //     };
 
-        const result = await db.find(query);
+    //     const result = await db.find(query);
 
-        return result.docs;
-    }
+    //     return result.docs;
+    // }
 }
 
 const notificationService = new NotificationService();

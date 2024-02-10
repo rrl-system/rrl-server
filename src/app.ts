@@ -10,96 +10,13 @@ import cors from 'cors'
 
 import cookieparser from 'cookie-parser'
 
-import notificationService from './kafka/notification.service.mjs'
-
-const ulid = '01HMTNN1H8521P9SQ7A8J2AZAF';
-
-import * as sqlite3 from 'sqlite3';
-
-const db = new sqlite3.default.Database(':memory:');
-
-const main = async () => {
-  await notificationService.connectProducer();
-  await notificationService.connectConsumer();
-  const messageContent = 'Нейросеть завершила обучение!';
-  // setInterval(() => notificationService.sendMessage(ulid, messageContent), 10000)
-};
-
-main().catch(console.error);
-
-// import { Kafka } from "kafkajs"
-
-// const kafka = new Kafka({
-//   clientId: "test-app",
-//   brokers: ["cs.rsu.edu.ru:9092"],
-// });
-
-// const producer = kafka.producer({
-//   maxInFlightRequests: 1,
-//   idempotent: true,
-//   transactionalId: "uniqueProducerId",
-// });
-
-// async function sendPayload(input: string) {
-//   try {
-//     await producer.send({
-//       topic: "testTopic",
-//       messages: [{ key: "test", value: input }],
-//     });
-//   } catch (e) {
-//     console.error("Caught Error while sending:", e);
-//   }
-// }
-
-// async function main() {
-//   await producer.connect();
-//   try {
-//     await sendPayload('Hello, from Nodejs');
-//   } catch (e) {
-//     console.error(e);
-//   }
-// }
-
-// main();
-
-/* const kafka = new Kafka({
-  clientId: "test-app",
-  brokers: ["cs.rsu.edu.ru:9092"],
-});
-
-const consumer = kafka.consumer({ groupId: "test-group" });
-const run = async () => {
-  await consumer.connect();
-  await consumer.subscribe({ topic: "testTopic", fromBeginning: true });
-
-  await consumer.run({
-    eachMessage: async ({ topic, partition, message }) => {
-      console.log("Received: ", {
-        partition,
-        offset: message.offset,
-        value: message.value.toString(),
-      });
-    },
-  });
-};
-run().catch(console.error); */
+import './notification-services/notification.services.mjs'
 
 const app: Express = express()
 
 const host = process.env.SERVER_HOST
 
 const port = Number(process.env.SERVER_PORT)
-
-
-// import multer from 'multer'
-
-// const upload = multer({ dest: 'uploads/' })
-
-// // app.post('/upload', upload.single('file'), function (req, res, next) {
-// //   console.log(req)
-// //   console.log(req.body)
-// //   res.status(200).send({a: 1})
-// // })
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -111,15 +28,12 @@ app.use(function setCommonHeaders(req, res, next) {
     next();
   });
 
-const corsoption={
+const corsOption={
   origin:"http://localhost:52330",
   credentials:true
-  }
-app.use(cors(corsoption));
+}
 
-const unreadNotifications = await notificationService.getUnreadNotifications(ulid);
-
-console.log(JSON.stringify(unreadNotifications));
+app.use(cors(corsOption));
 
 app.use('/api', routes)
 

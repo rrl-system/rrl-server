@@ -2,7 +2,7 @@ import nano from '../couch-db/couch-db.mjs'
 
 import * as ULID from 'ulid';
 
-const db = nano.use('rrl-server')
+const db = nano.use('rrl-projects')
 
 import jwt from 'jsonwebtoken';
 
@@ -11,6 +11,8 @@ import multer from 'multer';
 import fs from 'fs';
 
 import path from 'path';
+
+import projectStatusNotificationService from '../notification-services/project-status-notification.service.mjs'
 
 class Service {
 
@@ -50,14 +52,20 @@ class Service {
       .then(() => this.showFiles(req))
   }
 
-  createProject(req, verifiedToken) {
-    return db.insert(req.body, `${verifiedToken.ulid}:project:${ULID.ulid()}`)
-    .catch( err =>
-        Promise.reject({
-          error: `Ошибка создания проекта: ${err}`,
-          status: 500
-        })
-      )
+  async createProject(req, verifiedToken) {
+    const projectUlid = ULID.ulid();
+    let project = {}
+    try {
+      project = await db.insert(req.body, `${verifiedToken.ulid}:project:${projectUlid}`)
+    }
+    catch (err) {
+      return Promise.reject({
+        error: `Ошибка создания проекта: ${err}`,
+        status: 500
+      })
+    }
+    projectStatusNotificationService.sendMessage(`${verifiedToken.ulid}:project:${projectUlid}`, 'Created' )
+    return project
   }
 
   getProject(req, verifiedToken) {
@@ -76,6 +84,7 @@ class Service {
     const projectId = project._id.split(":")[2]
     project._id = `${verifiedToken.ulid}:project:${projectId}`
     console.log("update", project)
+    projectStatusNotificationService.sendMessage(project._id, 'Updated' )
     return db.insert(project)
     .catch( err =>
         Promise.reject({

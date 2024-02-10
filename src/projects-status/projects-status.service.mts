@@ -2,11 +2,13 @@ import nano from '../couch-db/couch-db.mjs'
 
 import * as ULID from 'ulid';
 
-const db = nano.use('rrl-projects')
+import {AsyncDatabase} from 'promised-sqlite3';
+
+const db = nano.use('rrl-server')
+
+const sqlDb = await AsyncDatabase.open("./db.sqlite");
 
 import jwt from 'jsonwebtoken';
-
-import projectStatusNotificationService from '../notification-services/project-status-notification.service.mjs'
 
 class Service {
 
@@ -35,8 +37,7 @@ class Service {
   }
 
   createProject(req, verifiedToken) {
-
-    return db.insert(req.body, `${verifiedToken.ulid}:project:${ULID.ulid()}`)
+    return db.insert(req.body, `${verifiedToken.ulid}:status:${ULID.ulid()}`)
     .catch( err =>
         Promise.reject({
           error: `Ошибка создания проекта: ${err}`,
@@ -47,7 +48,9 @@ class Service {
 
   getProjects(verifiedToken) {
       console.log(verifiedToken)
-      return db.partitionedList(verifiedToken.ulid,{ include_docs: true, start_key: `${verifiedToken.ulid}:project:0`, end_key: `${verifiedToken.ulid}:project:f`})
+      // const row1 = await db.get("SELECT * FROM foo WHERE id = ?", 2);
+      // return db.partitionedList(verifiedToken.ulid,{ include_docs: true, start_key: `${verifiedToken.ulid}:status:0`, end_key: `${verifiedToken.ulid}:status:f`})
+      return sqlDb.all(`SELECT * FROM 'statuses' WHERE _id LIKE '${verifiedToken.ulid}:project:%';`)
         .catch( err =>
           Promise.reject({
             error: `Не могу найти список проектов: ${err}`,

@@ -38,11 +38,8 @@ class Service {
 
   async getTokens(verifiedToken) {
     try {
-      console.log('111111', verifiedToken)
       let {token:refreshToken, claim} = await this.createRefreshToken(verifiedToken)
-      console.log('2222', refreshToken, claim)
       let [obj , accessToken] = await Promise.all([this.saveRefreshToken(verifiedToken, claim), this.createAccessToken(verifiedToken)])
-      console.log('33333',accessToken, obj)
       return {refreshToken, accessToken}
     }
     catch (err) {
@@ -91,7 +88,7 @@ class Service {
     };
     console.log("payload",payload)
     const secret =  process.env.TOKEN_PRIVATE_KEY
-    const options = { expiresIn: '1m' };
+    const options = { expiresIn: '1h' };
     return jwt.sign(payload, secret, options);
   }
 
