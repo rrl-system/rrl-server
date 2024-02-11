@@ -44,19 +44,19 @@ class Service {
       )
   }
 
-  getProjects(verifiedToken,req) {
-    const pyProg = spawn('C:\Users\\vaant\\AppData\\Local\\Programs\\Python\\Python311\\python.exe',
-    ['.\\src\\python-scripts\\learning.py', verifiedToken.ulid, req.params.projectId, req.query.epochs]);
+  getProjects(verifiedToken, req) {
+    const pythonCommand = process.platform === "win32" ? "python" : "python3";
 
-
+    const pyProg = spawn(pythonCommand, ['./src/python-scripts/learn.py', verifiedToken.ulid, req.params.projectId, req.query.epochs]);
+  
     pyProg.stdout.on('data', function(data) {
-      console.log('stdon:', data.toString());
+      console.log('stdout:', data.toString());
     });
+  
     pyProg.stderr.on('data', (data) => {
-      console.log('stderr:', data.toString().length, 'chars');
+      console.log('stderr:', data.toString(), 'chars');
       // rej(data.toString());
     });
-
   }
 
   async hasAuthorizationHeader(req) {
