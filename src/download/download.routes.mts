@@ -15,8 +15,14 @@ router.use(async (req: Request, res: Response, next: NextFunction) => {
 })
 
 router
-    .route('/:projectId')
+    .route('/project/:projectId')
     .get(controller.download)
+    .delete(controller.delete)
+    .put(controller.download)
+
+router
+    .route('/project-avatars')
+    .get(controller.downloadProjectAvatars)
     .delete(controller.delete)
     .put(controller.download)
 

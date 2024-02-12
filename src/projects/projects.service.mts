@@ -16,6 +16,12 @@ class Service {
       .then(verifiedToken => this.getProjects(verifiedToken))
   }
 
+  count(req) {
+    return this.getToken(req)
+      .then(token => this.verifyToken(token))
+      .then(verifiedToken => this.getCount(verifiedToken))
+  }
+
   create(req) {
     return this.getToken(req)
       .then(token => this.verifyToken(token))
@@ -47,7 +53,8 @@ class Service {
 
   getProjects(verifiedToken) {
       console.log(verifiedToken)
-      return db.partitionedList(verifiedToken.ulid,{ include_docs: true, start_key: `${verifiedToken.ulid}:project:0`, end_key: `${verifiedToken.ulid}:project:f`})
+      // return db.partitionedList(verifiedToken.ulid,{ include_docs: true, start_key: `${verifiedToken.ulid}:project:0`, end_key: `${verifiedToken.ulid}:project:f`})
+      return db.partitionedList(verifiedToken.ulid,{ include_docs: true })
         .catch( err =>
           Promise.reject({
             error: `Не могу найти список проектов: ${err}`,
@@ -56,6 +63,16 @@ class Service {
         )
     }
 
+  getCount(verifiedToken) {
+    console.log(verifiedToken)
+    return db.partitionInfo(verifiedToken.ulid)
+      .catch( err =>
+        Promise.reject({
+          error: `Не могу найти список проектов: ${err}`,
+          status: 403
+        })
+      )
+  }
   async hasAuthorizationHeader(req) {
     if (!req.headers['authorization'])
       return Promise.reject({

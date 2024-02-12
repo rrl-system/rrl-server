@@ -2,7 +2,7 @@ import nano from '../couch-db/couch-db.mjs'
 
 import * as ULID from 'ulid'
 
-const db = nano.use('rrl-server')
+const db = nano.use('rrl-projects')
 
 import jwt from 'jsonwebtoken'
 
@@ -11,6 +11,8 @@ import { fileURLToPath } from 'url'
 import fs from 'fs';
 
 import path from 'path';
+
+
 
 class Service {
 
@@ -51,6 +53,58 @@ class Service {
     }
   }
 
+  downloadProjectAvatars(req, res) {
+    return this.getToken(req)
+      .then(token => this.verifyToken(token))
+      .then(verifiedToken => this.downloadProjectAvatarsFile(req, res, verifiedToken))
+  }
+
+  getProjects(verifiedToken) {
+    console.log(verifiedToken)
+    return db.partitionedList(verifiedToken.ulid)
+      .catch( err =>
+        Promise.reject({
+          error: `Не могу найти список проектов: ${err}`,
+          status: 403
+        })
+      )
+  }
+
+  async downloadProjectAvatarsFile(req, res, verifiedToken) {
+    const projectList = await this.getProjects(verifiedToken)
+    console.log(projectList)
+    const zipFiles = []
+    projectList.rows.forEach(project => {
+      const projectId = project.id.split(":")[2];
+      const dirPath = path.join('uploads', verifiedToken.ulid, `project-${projectId}`);
+      const filePath = path.join(dirPath, 'avatar');
+      console.log(filePath)
+      if (fs.existsSync(filePath)) {
+        const obj = { path: filePath, name: `${verifiedToken.ulid}:project:${projectId}`}
+        zipFiles.push(obj)
+        console.log(zipFiles)
+      }
+    })
+    return zipFiles;
+    // const projectId = req.params.projectId.split(":")[2];
+    // const dirPath = path.join('uploads', verifiedToken.ulid, `project-${projectId}`);
+    // const filePath = path.join(dirPath, 'model.pkl');
+
+    // if (fs.existsSync(filePath)) {
+    //   res.download(filePath, 'model.pkl', (err) => {
+    //     if (err) {
+    //       res.status(500).send({
+    //         error: `Ошибка при скачивании файла: ${err.message}`
+    //       });
+    //     }
+    //   });
+    // } else {
+    //   res.status(404).send({
+    //     error: 'Файл не найден'
+    //   });
+    // }
+  }
+
 
   update(req) {
     return this.getToken(req)
@@ -89,16 +143,7 @@ class Service {
     return Promise.resolve(1);
   }
 
-  getProjects(verifiedToken) {
-      console.log(verifiedToken)
-      return db.partitionedList(verifiedToken.ulid,{ include_docs: true, start_key: `${verifiedToken.ulid}:project:0`, end_key: `${verifiedToken.ulid}:project:f`})
-        .catch( err =>
-          Promise.reject({
-            error: `Не могу найти список проектов: ${err}`,
-            status: 403
-          })
-        )
-    }
+
 
   async hasAuthorizationHeader(req) {
     console.log('hasAuthorizationHeader')

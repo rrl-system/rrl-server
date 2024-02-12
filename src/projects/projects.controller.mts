@@ -21,11 +21,18 @@ class Controller {
         res.status(200).send(result)
       })
       .catch(next)
-  }
+    }
   delete(req, res, next) {
     service.delete(req)
-      .then( project => {
-        res.status(200).send(project)
+    .then( project => {
+      res.status(200).send(project)
+    })
+    .catch(next)
+  }
+  count(req, res, next) {
+    service.count(req)
+      .then( result => {
+        res.status(200).send(result)
       })
       .catch(next)
   }

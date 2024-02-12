@@ -21,6 +21,10 @@ router
     .put(controller.update)
     .delete(controller.delete)
 
+router
+    .route('/count')
+    .get(controller.count)
+
 router.use(function(err: any, req: Request, res: Response, next: NextFunction) {
     res.status(err.status || 500)
     .send(err);

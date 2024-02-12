@@ -27,6 +27,12 @@ class Service {
       .then(verifiedToken => this.getAvatarFile(req, res, verifiedToken))
   }
 
+  getProjectAvatar(req, res) {
+    return this.getToken(req)
+      .then(token => this.verifyToken(token))
+      .then(verifiedToken => this.getProjectAvatarFile(req, res, verifiedToken))
+  }
+
   create(req) {
     return this.getToken(req)
       .then(token => this.verifyToken(token))
@@ -42,6 +48,12 @@ class Service {
     return this.getToken(req)
       .then(token => this.verifyToken(token))
       .then(verifiedToken => this.uploadAvatarFile(req, verifiedToken))
+  }
+
+  uploadProjectAvatar(req) {
+    return this.getToken(req)
+      .then(token => this.verifyToken(token))
+      .then(verifiedToken => this.uploadProjectAvatarFile(req, verifiedToken))
   }
 
 
@@ -133,6 +145,39 @@ class Service {
   //   return upload.single('file')
   // }
 
+  uploadProjectAvatarFile(req, verifiedToken) {
+    const storage = multer.diskStorage({
+      destination: function (req, file, cb) {
+        const projectId = req.params.projectId.split(":")[2]
+        let destPath = path.join('uploads', verifiedToken.ulid, `project-${projectId}`);
+        console.log(destPath)
+        fs.mkdirSync(destPath, { recursive: true });
+        cb(null, destPath);
+      },
+
+      filename: function (req, file, cb) {
+          console.log(file.originalname)
+          cb(null, file.originalname);
+      }
+
+    });
+
+    const upload = multer({ storage: storage }).single('file');
+
+    return new Promise((resolve, reject) => {
+      upload(req, null, err => {
+        if (err) {
+          return reject({
+            error: `Ошибка при загрузке файла: ${err.message}`,
+            status: 403
+          });
+        } else {
+          return resolve({upload: 'ok'})
+        }
+      })
+    })
+  }
+
   update(req) {
     return this.getToken(req)
       .then(token => this.verifyToken(token))
@@ -202,6 +247,29 @@ class Service {
       });
     }
   }
+
+  getProjectAvatarFile(req, res, verifiedToken) {
+    const dirPath = path.join('uploads', verifiedToken.ulid);
+    console.log('dirPath', dirPath)
+    const filePath = path.join(dirPath, 'avatar');
+    console.log('filePath', filePath)
+
+    if (fs.existsSync(filePath)) {
+      res.download(filePath, 'avatar', (err) => {
+        console.log('AvatarPath')
+        if (err) {
+          res.status(500).send({
+            error: `Ошибка при скачивании файла: ${err.message}`
+          });
+        }
+      });
+    } else {
+      res.status(404).send({
+        error: 'Файл не найден'
+      });
+    }
+  }
+
   async hasAuthorizationHeader(req) {
     console.log('hasAuthorizationHeader')
     // console.log(path.dirname(import.meta.url))

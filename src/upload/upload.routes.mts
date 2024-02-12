@@ -47,6 +47,13 @@ router
     .delete(controller.delete)
     .put(controller.uploadAvatar)
 
+router
+    .route('/project-avatar/:projectId')
+    .get(controller.getProjectAvatar)
+    .post(controller.uploadProjectAvatar)
+    .delete(controller.deleteProjectAvatar)
+    .put(controller.uploadProjectAvatar)
+
 router.use(function(err: any, req: Request, res: Response, next: NextFunction) {
     res.status(err.status || 500)
     .send(err);

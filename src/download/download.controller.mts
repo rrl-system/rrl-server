@@ -1,5 +1,7 @@
 import service from './download.service.mjs'
 
+import 'express-zip';
+
 class Controller {
   get(req, res, next) {
     service.get(req)
@@ -12,6 +14,19 @@ class Controller {
     service.download(req, res)
       .catch(next);
   }
+
+  downloadProjectAvatars(req, res, next) {
+
+    service.downloadProjectAvatars(req, res).then(zipFiles => {
+      console.log('zip', zipFiles)
+      console.log('zip2', res.zip)
+      res.zip(zipFiles, '111', (e) => {
+        console.log('11')
+      })
+    })
+      .catch(next);
+  }
+
   create(req, res, next) {
     service.create(req)
       .then( result => {
