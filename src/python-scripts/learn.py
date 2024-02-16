@@ -24,7 +24,7 @@ def send_message(ulid, message_content):
         'isRead': False
     }
 
-    producer.produce('testTopic', json.dumps(message).encode('utf-8'), callback=acked)
+    producer.produce('notification', json.dumps(message).encode('utf-8'), callback=acked)
     producer.flush()
 
 ulid = sys.argv[1]
