@@ -68,8 +68,7 @@ class Service {
       },
 
       filename: function (req, file, cb) {
-          console.log(file.originalname)
-          cb(null, file.originalname);
+          cb(null, 'data.csv');
       }
 
     });
