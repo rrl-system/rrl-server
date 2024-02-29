@@ -7,8 +7,7 @@ import neuralDataController from './neural-data.controller.mjs'
 const router: Router = express.Router()
 
 router
-  .route('/')
-  .post(neuralDataController.getNeuralData)
+  .route('/:projectId')
 
 router.use(function(err: any, req: Request, res: Response, next: NextFunction) {
   res.status(err.status || 500)
