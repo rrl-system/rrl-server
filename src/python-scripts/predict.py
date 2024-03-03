@@ -39,6 +39,11 @@ import json
 
 out = json.dumps(data)
 
+file_path = f"uploads\{ulid}\{project}\predicting_data.json"
+
+with open(file_path, 'w') as file:
+    print(out, file=file)
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 handler = logging.StreamHandler(sys.stdout)
