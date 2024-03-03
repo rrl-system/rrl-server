@@ -80,7 +80,7 @@ class Service {
       const filePath = path.join(dirPath, 'avatar');
       console.log(filePath)
       if (fs.existsSync(filePath)) {
-        const obj = { path: filePath, name: `${verifiedToken.ulid}:project:${projectId}`}
+        const obj = { path: filePath, name: `${verifiedToken.ulid}-project-${projectId}`}
         zipFiles.push(obj)
         console.log(zipFiles)
       }
