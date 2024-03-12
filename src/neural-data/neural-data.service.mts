@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 
 import {spawn} from 'child_process'
 
-const fs = require('fs').promises; 
+import { promises as fs } from 'fs';
 
 class Service {
 
@@ -18,16 +18,16 @@ class Service {
         .then(verifiedToken => this.getNeuralData(verifiedToken, req))
     }
 
-    getNeuralData(verifiedToken, req) {
+    async getNeuralData(verifiedToken, req) {
         try {
-            const data = fs.readFile('./uploads/' + verifiedToken.ulid + '/' + req.params.projectId + '/predicting_data.json', 'utf8');
-            const jsonData = JSON.parse(data); 
+            const data = await fs.readFile(`./uploads/${verifiedToken.ulid}/${req.params.projectId}/predicting_data.json`, 'utf8');
+            const jsonData = JSON.parse(data);
             return jsonData;
         } catch (error) {
             console.error('Error reading the neural data file:', error);
             throw new Error('Failed to read neural data');
         }
-    }
+    }    
 
     async hasAuthorizationHeader(req) {
         if (!req.headers['authorization'])
