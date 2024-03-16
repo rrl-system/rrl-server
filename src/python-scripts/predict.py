@@ -4,14 +4,13 @@ import logging
 import pandas as pd
 
 sys.stderr = open('error_log.txt', 'w')
+sys.stdout = open('log.txt', 'w')
 
-steps = int(sys.argv[1])
+ulid = sys.argv[1]
+projectID = sys.argv[2]
+steps = int(sys.argv[3])
 
-ulid = sys.argv[2]
-
-project = sys.argv[3]
-
-path = f"uploads\{ulid}\{project}\model.pkl"
+path = f"uploads\{ulid}\project-{projectID}\model.pkl"
 
 model = ITSASModel.load(path)
 
@@ -39,7 +38,7 @@ import json
 
 out = json.dumps(data)
 
-file_path = f"uploads\{ulid}\{project}\predicting_data.json"
+file_path = f"uploads\{ulid}\project-{projectID}\predicting_data.json"
 
 with open(file_path, 'w') as file:
     print(out, file=file)

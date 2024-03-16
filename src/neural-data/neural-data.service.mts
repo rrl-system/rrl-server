@@ -20,14 +20,15 @@ class Service {
 
     async getNeuralData(verifiedToken, req) {
         try {
-            const data = await fs.readFile(`./uploads/${verifiedToken.ulid}/${req.params.projectId}/predicting_data.json`, 'utf8');
+            const data = await fs.readFile(`./uploads/${verifiedToken.ulid}/project-${req.params.projectId}/predicting_data.json`, 'utf8');
             const jsonData = JSON.parse(data);
+            console.log(jsonData);
             return jsonData;
         } catch (error) {
             console.error('Error reading the neural data file:', error);
             throw new Error('Failed to read neural data');
         }
-    }    
+    }     
 
     async hasAuthorizationHeader(req) {
         if (!req.headers['authorization'])

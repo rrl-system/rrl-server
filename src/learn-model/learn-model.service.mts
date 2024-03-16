@@ -35,28 +35,19 @@ class Service {
   }
 
   createProject(req, verifiedToken) {
-    return db.insert(req.body, `${verifiedToken.ulid}:project:${ULID.ulid()}`)
-    .catch( err =>
-        Promise.reject({
-          error: `Ошибка создания проекта: ${err}`,
-          status: 500
-        })
-      )
+    const pythonCommand = process.platform === "win32" ? "python" : "python3";
+
+    const pyProg = spawn(pythonCommand, ['./src/python-scripts/predict.py', verifiedToken.ulid, req.params.projectId, req.body.epochs]);
+
+    return true;
   }
 
   getProjects(verifiedToken, req) {
     const pythonCommand = process.platform === "win32" ? "python" : "python3";
 
     const pyProg = spawn(pythonCommand, ['./src/python-scripts/learn.py', verifiedToken.ulid, req.params.projectId, req.query.epochs]);
-  
-    pyProg.stdout.on('data', function(data) {
-      console.log('stdout:', data.toString());
-    });
-  
-    pyProg.stderr.on('data', (data) => {
-      console.log('stderr:', data.toString(), 'chars');
-      // rej(data.toString());
-    });
+
+    return true;
   }
 
   async hasAuthorizationHeader(req) {

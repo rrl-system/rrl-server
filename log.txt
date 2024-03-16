@@ -1,9 +1,2 @@
-Downloading...
-From: https://drive.google.com/uc?id=1HV-xZavp3RuJkPbvjyhVe9oiR333bzq7
-To: C:\Users\������\Desktop\������\rrl-server\uploads\01HJNCQJVFEM9K924F9EX0ZVHE\project-01HKDPBPV2M73MQX3RJ7CWXV0N\data.csv
-
-  0%|                                                                                                                                                       | 0.00/665k [00:00<?, ?B/s]
- 79%|################################################################################################################7                              | 524k/665k [00:00<00:00, 1.74MB/s]
-100%|###############################################################################################################################################| 665k/665k [00:00<00:00, 2.04MB/s]
-C:\Users\������\AppData\Local\Programs\Python\Python311\Lib\site-packages\pytorch_lightning\trainer\configuration_validator.py:74: You defined a `validation_step` but have no `val_dataloader`. Skipping val loop.
-C:\Users\������\AppData\Local\Programs\Python\Python311\Lib\site-packages\pytorch_lightning\trainer\connectors\data_connector.py:441: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=15` in the `DataLoader` to improve performance.
+Predicting: |          | 0/? [00:00<?, ?it/s]Predicting:   0%|          | 0/1 [00:00<?, ?it/s]Predicting DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s]Predicting DataLoader 0: 100%|##########| 1/1 [00:00<00:00, 167.14it/s]Predicting DataLoader 0: 100%|##########| 1/1 [00:00<00:00, 167.14it/s]
+[{"date": 1530043200000.0, "OT": 0.2525954219391636}, {"date": 1530046800000.0, "OT": 0.2541860774946739}, {"date": 1530050400000.0, "OT": 0.25460246878620224}, {"date": 1530054000000.0, "OT": 0.2500778731872977}, {"date": 1530057600000.0, "OT": 0.2522966767920405}]
