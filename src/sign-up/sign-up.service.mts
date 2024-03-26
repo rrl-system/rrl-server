@@ -22,7 +22,7 @@ class SignUpService {
     console.log('token', token);
     const ticket = await client.verifyIdToken({
         idToken: token,
-        audience: '152529125992-enoddnchd7n8mug7he2juk5fh3fhevqe.apps.googleusercontent.com',
+        audience: process.env.GOOGLE_USER,
     });
     return ticket;
   }
@@ -250,7 +250,7 @@ class SignUpService {
         })
       )
   }
-  
+
   async generateAccessToken() {
     // const payload = {
     //   id: user.id,
