@@ -52,8 +52,6 @@ class Service {
   }
 
   getProjects(verifiedToken) {
-      console.log(verifiedToken)
-      // return db.partitionedList(verifiedToken.ulid,{ include_docs: true, start_key: `${verifiedToken.ulid}:project:0`, end_key: `${verifiedToken.ulid}:project:f`})
       return db.partitionedList(verifiedToken.ulid,{ include_docs: true })
         .catch( err =>
           Promise.reject({
@@ -64,7 +62,6 @@ class Service {
     }
 
   getCount(verifiedToken) {
-    console.log(verifiedToken)
     return db.partitionInfo(verifiedToken.ulid)
       .catch( err =>
         Promise.reject({
@@ -94,7 +91,6 @@ class Service {
     return token;
   }
   async verifyToken(token) {
-    console.log(token)
     const secret = process.env.TOKEN_PRIVATE_KEY;
     try {
       return jwt.verify(token, secret);

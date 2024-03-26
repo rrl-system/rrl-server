@@ -34,7 +34,6 @@ class NotificationService {
     }
 
     async connectConsumer() {
-        console.log('Start Notification\'s Consumer');
         await this.consumer.connect();
         await this.consumer.subscribe({ topic: "notification", fromBeginning: true });
         await this.consumer.run({ eachMessage: this.getMessage });
@@ -45,7 +44,6 @@ class NotificationService {
     }
 
     async sendMessage(ulid, messageContent) {
-        console.log('sendMessage');
         const message = {
             ulid,
             messageContent,
@@ -62,7 +60,6 @@ class NotificationService {
     }
 
     async getMessage({ topic, partition, message }) {
-        console.log(message.value);
         const messageObj = JSON.parse(message.value)
         const messageDb = {
             _id: `${messageObj.ulid}:${String(message.offset).padStart(19,'0')}`,
@@ -82,82 +79,7 @@ class NotificationService {
             `${messageObj.ulid}:offset`,
             message.offset
         ]);
-        // const row = await sqlDb.get("SELECT * FROM 'offsets' WHERE id = ?",  `${messageObj.ulid}:offset`);
-        // console.log('1133')
-        // console.log(row);
-        // try {
-        //     const offsetObj = await offsetDb.get(`${messageObj.ulid}:offset`).then(obj => {
-        //             const offset = {
-        //                 "_id": `${messageObj.ulid}:offset`,
-        //                 "offset":  message.offset,
-        //                 "_rev": obj._rev,
-        //             }
-        //             return offsetDb.insert(offset, `${messageObj.ulid}:offset`).catch( err =>
-        //                 Promise.reject({
-        //                     error: `Ошибка создания сообщения: ${err}`,
-        //                     status: 500
-        //                 })
-        //             )
-        //         }
-
-        //         ).catch(err => {
-        //             const offset = {
-        //                 "_id": `${messageObj.ulid}:offset`,
-        //                 "offset":  message.offset,
-        //             }
-        //         return offsetDb.insert(offset, `${messageObj.ulid}:offset`)
-        //         .catch( err =>
-        //             Promise.reject({
-        //                 error: `Ошибка создания сообщения: ${err}`,
-        //                 status: 500
-        //             })
-        //         )               }
-        //     );
-        // console.log('11222')
-        console.log(sseServer)
-
         sseServer.sendEventMessageToClient(messageObj.ulid, 'maxoffset', message.offset)
-        console.log('11233')
-        // console.log(offsetObj)
-
-        // catch (err) {
-        //     console.log('5555')
-        //     return Promise.reject({
-        //         error: `Ошибка создания сообщения: ${err}`,
-        //         status: 500
-        //         })
-        // }
-        // console.log('444')
-
-        // db.insert(messageDb, `${messageObj.ulid}:${message.offset}`)
-        //   .catch( err =>
-        //      Promise.reject({
-        //       error: `Ошибка создания сообщения: ${err}`,
-        //       status: 500
-        //       })
-        //   )
-
-        // .catch( err =>
-        //   Promise.reject({
-        //     error: `Не могу найти проект: ${err}`,
-        //     status: 403
-        //   })
-        // )
-
-        // db.insert(offset, `${messageObj.ulid}:offset`)
-        // .catch( err =>
-        //     Promise.reject({
-        //     error: `Ошибка создания сообщения: ${err}`,
-        //     status: 500
-        //     })
-        // )
-
-        // console.log(message);
-        //     console.log("Received: ", {
-        //         partition,
-        //         offset: message.offset,
-        //         value: message.value.toString(),
-        //     });
     }
 
     async markMessageAsRead(messageId) {

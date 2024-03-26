@@ -65,7 +65,6 @@ class Service {
       ulid: verifiedToken.ulid,
       claim: ULID.ulid()
     };
-    console.log("payload",payload)
     const secret =  process.env.TOKEN_PRIVATE_KEY
     const options = { expiresIn: '2h' };
     return {
@@ -86,15 +85,12 @@ class Service {
       id: verifiedToken.id,
       ulid: verifiedToken.ulid
     };
-    console.log("payload",payload)
     const secret =  process.env.TOKEN_PRIVATE_KEY
     const options = { expiresIn: '1h' };
     return jwt.sign(payload, secret, options);
   }
 
   getProjects(verifiedToken, limit) {
-      console.log(verifiedToken)
-
       return db.partitionedList(verifiedToken.ulid,{ include_docs: true, limit, start_key: `${verifiedToken.ulid}:0`, end_key: `${verifiedToken.ulid}:f`})
         .catch( err =>
           Promise.reject({
@@ -115,7 +111,6 @@ class Service {
 
   async getToken(req) {
     const token = req.cookies['refresh-token'];
-    console.log('00000', token)
     if (!token) {
       return Promise.reject({
         error: 'У Вас нет токена обновления. Зайдите в Ваш аккаунт опять',
@@ -125,7 +120,6 @@ class Service {
     return token;
   }
   async verifyToken(token) {
-    console.log(token)
     const secret = process.env.TOKEN_PRIVATE_KEY;
     try {
       return jwt.verify(token, secret);

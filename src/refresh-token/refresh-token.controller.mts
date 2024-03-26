@@ -4,9 +4,7 @@ class Controller {
   get(req, res, next) {
     service.get(req)
       .then( tokens => {
-        console.log('6666')
         res.cookie('refresh-token', tokens.refreshToken, {httpOnly: true, sameSite: 'strict', expires: new Date(Date.now() + 9000000)});
-        console.log(res.cookie)
         res.status(200).send({ token: tokens.accessToken })
       })
       .catch(next)

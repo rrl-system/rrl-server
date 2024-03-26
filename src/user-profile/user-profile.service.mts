@@ -58,7 +58,6 @@ class Service {
   }
 
   getUserProfile(verifiedToken) {
-    console.log(`${verifiedToken.ulid}:user-profile`)
     return db.get(`${verifiedToken.ulid}:user-profile`)
       .catch( err =>
         Promise.reject({
@@ -69,10 +68,7 @@ class Service {
   }
 
   decodeUserProfile(userDb) {
-    console.log("personal", userDb.personalInfo)
-    console.log("personal", decode(userDb.personalInfo))
     userDb.personalInfo = JSON.parse(decode(userDb.personalInfo));
-    console.log("personal", userDb.personalInfo)
     delete userDb._id;
     return userDb;
   }
@@ -84,11 +80,9 @@ class Service {
   }
 
   updateUserProfile(req, verifiedToken) {
-    console.log(req.body)
     const userProfile = req.body
     userProfile._id = `${verifiedToken.ulid}:user-profile`
     userProfile.personalInfo = encode(JSON.stringify(userProfile.personalInfo))
-    console.log(userProfile)
     return db.insert(userProfile, `${verifiedToken.ulid}:user-profile`)
     .catch( err =>
         Promise.reject({

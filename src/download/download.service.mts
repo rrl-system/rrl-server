@@ -60,7 +60,6 @@ class Service {
   }
 
   getProjects(verifiedToken) {
-    console.log(verifiedToken)
     return db.partitionedList(verifiedToken.ulid)
       .catch( err =>
         Promise.reject({
@@ -72,39 +71,18 @@ class Service {
 
   async downloadProjectAvatarsFile(req, res, verifiedToken) {
     const projectList = await this.getProjects(verifiedToken)
-    console.log(projectList)
     const zipFiles = []
     projectList.rows.forEach(project => {
       const projectId = project.id.split(":")[2];
       const dirPath = path.join('uploads', verifiedToken.ulid, `project-${projectId}`);
       const filePath = path.join(dirPath, 'avatar');
-      console.log(filePath)
       if (fs.existsSync(filePath)) {
         const obj = { path: filePath, name: `${verifiedToken.ulid}-project-${projectId}`}
         zipFiles.push(obj)
-        console.log(zipFiles)
       }
     })
     return zipFiles;
-    // const projectId = req.params.projectId.split(":")[2];
-    // const dirPath = path.join('uploads', verifiedToken.ulid, `project-${projectId}`);
-    // const filePath = path.join(dirPath, 'model.pkl');
-
-    // if (fs.existsSync(filePath)) {
-    //   res.download(filePath, 'model.pkl', (err) => {
-    //     if (err) {
-    //       res.status(500).send({
-    //         error: `Ошибка при скачивании файла: ${err.message}`
-    //       });
-    //     }
-    //   });
-    // } else {
-    //   res.status(404).send({
-    //     error: 'Файл не найден'
-    //   });
-    // }
   }
-
 
   update(req) {
     return this.getToken(req)
@@ -131,23 +109,14 @@ class Service {
   }
 
   uploadFiles(req, verifiedToken) {
-    // this.upload(req)
-    console.log(req.body)
-    console.log(req)
     return {a:1};
   }
 
   createProject(req, verifiedToken) {
-    console.log(req.body)
-    console.log(req.files)
     return Promise.resolve(1);
   }
 
-
-
   async hasAuthorizationHeader(req) {
-    console.log('hasAuthorizationHeader')
-    // console.log(path.dirname(import.meta.url))
     if (!req.headers['authorization'])
       return Promise.reject({
         error: 'Не заданы параметры авторизации',
@@ -157,7 +126,6 @@ class Service {
   }
 
   async getToken(req) {
-    console.log('getToken')
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) {
@@ -169,7 +137,6 @@ class Service {
     return token;
   }
   async verifyToken(token) {
-    console.log(token)
     const secret = process.env.TOKEN_PRIVATE_KEY;
     try {
       return jwt.verify(token, secret);
@@ -180,7 +147,6 @@ class Service {
       });
     }
   }
-
 }
 
 const service: Service = new Service()

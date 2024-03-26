@@ -30,12 +30,10 @@ class Service {
 
   sendMessageToClient(clientId: string, message: string) {
     const data = `data: ${message}\nid: ${Service.getUlid()}\n\n`;
-    console.log(data);
     Service.client(clientId).write(data);
   }
 
   sendEventMessageToClient(clientId: string, event: string, message: string) {
-      console.log('222')
       const data = `event: ${event}\ndata: ${message}\nid: ${Service.getUlid()}\n\n`;
       Service.client(clientId)?.write(data);
   }
@@ -96,7 +94,6 @@ class Service {
     }
 
   async hasAuthorizationHeader(req) {
-    console.log(req.query.token)
     if (!req.query.token)
       return Promise.reject({
         error: 'Не заданы параметры авторизации',
@@ -116,7 +113,6 @@ class Service {
     return token;
   }
   async verifyToken(token) {
-    console.log(token)
     const secret = process.env.TOKEN_PRIVATE_KEY;
     try {
       return jwt.verify(token, secret);

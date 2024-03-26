@@ -57,7 +57,6 @@ class NotificationService {
     }
 
     async connectConsumer() {
-        console.log('Start Project Status Consumer');
         await this.consumer.connect();
         await this.consumer.subscribe({ topic: "project-status", fromBeginning: true });
         await this.consumer.run({ eachMessage: this.getMessage });
@@ -68,7 +67,6 @@ class NotificationService {
     }
 
     async sendMessage(ulid, content) {
-        console.log('sendMessage');
         const message = {
             ulid,
             content,
@@ -82,7 +80,6 @@ class NotificationService {
     }
 
     async getMessage({ topic, partition, message }) {
-        console.log(message.value);
         const messageObj = JSON.parse(message.value)
         const clientId = messageObj.ulid.split(":")[0]
         const messageDb = {
@@ -112,8 +109,6 @@ class NotificationService {
             sqlObject.offset,
         ]);
         // const row = await sqlDb.get("SELECT * FROM 'offsets' WHERE id = ?",  `${messageObj.ulid}:offset`);
-        // console.log('1133')
-        // console.log(row);
         // try {
         //     const offsetObj = await offsetDb.get(`${messageObj.ulid}:offset`).then(obj => {
         //             const offset = {
@@ -142,22 +137,15 @@ class NotificationService {
         //             })
         //         )               }
         //     );
-        // console.log('11222')
-        // console.log(sseServer)
 
-
-        console.log(clientId)
         sseServer.sendEventMessageToClient(clientId, 'project-status', JSON.stringify(sqlObject))
-        // console.log(offsetObj)
 
         // catch (err) {
-        //     console.log('5555')
         //     return Promise.reject({
         //         error: `Ошибка создания сообщения: ${err}`,
         //         status: 500
         //         })
         // }
-        // console.log('444')
 
         // db.insert(messageDb, `${messageObj.ulid}:${message.offset}`)
         //   .catch( err =>
@@ -182,12 +170,7 @@ class NotificationService {
         //     })
         // )
 
-        // console.log(message);
-        //     console.log("Received: ", {
-        //         partition,
-        //         offset: message.offset,
-        //         value: message.value.toString(),
-        //     });
+
     }
 
     // async markMessageAsRead(messageId) {

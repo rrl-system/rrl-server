@@ -139,7 +139,6 @@ class UserService {
   }
 
   getUserDB(decodedToken) {
-    console.log(decodedToken)
     return db.get(`${decodedToken.id}`).catch( err =>
       Promise.reject({
         error: `Не могу найти Вашего пользователя в базе данных: ${err}`,
@@ -153,7 +152,6 @@ class UserService {
   }
 
   async createUserInfo(userData) {
-    console.log("userData", userData)
     const user = JSON.parse(userData)
     if (user.type === 'simple') {
       return {
@@ -203,8 +201,6 @@ class UserService {
   }
 
   async verifyToken(token) {
-    console.log(token)
-    // const secret = process.env.TOKEN_PUBLIC_KEY;
     const secret = process.env.TOKEN_PRIVATE_KEY;
     try {
       return jwt.verify(token, secret);
@@ -221,7 +217,6 @@ class UserService {
   }
 
   async createUserObject(userData) {
-    console.log(userData)
     const googleUserData: GoogleUser = {
       ulid: ULID.ulid(),
       userData: encode(JSON.stringify(userData)),

@@ -19,7 +19,6 @@ import {encode, decode} from '../helpers/crypto.mjs';
 class SignUpService {
 
   async verifyGoogle(token) {
-    console.log('token', token);
     const ticket = await client.verifyIdToken({
         idToken: token,
         audience: process.env.GOOGLE_USER,
@@ -57,7 +56,6 @@ class SignUpService {
 
 
   checkGoogleUser(ticket) {
-    console.log('ticket', ticket);
     return db.get(`${encode(ticket.payload.sub)}:user`)
       .then(
         res =>
@@ -72,7 +70,6 @@ class SignUpService {
   }
 
   checkSimpleUser(encodedUser) {
-    console.log(encodedUser)
     return db.get(`${encodedUser.id}:user`)
       .then(
         res =>
@@ -97,16 +94,12 @@ class SignUpService {
   async simpleUserCreate(req) {
     await this.verifyPassword(req);
     const hash = await(this.createHash(req))
-    console.log('createHash', hash)
     await this.hashPassword(hash,req)
     const encodedUser = await this.createSimpleUserObject(req)
-    console.log('createSimpleUserObject', encodedUser)
     await this.checkSimpleUser(encodedUser)
     const userProfileObject = await this.createSimpleUserProfileObject(req)
-    console.log('userProfileObject', userProfileObject)
 
     const dbuser = await this.createSimpleUserProfile(req, userProfileObject)
-    console.log('dbuser', dbuser)
     const userDb = await this.createSimpleUser(encodedUser)
 
     return await this.createSimpleUserToken(userDb, req)
@@ -131,9 +124,7 @@ class SignUpService {
   }
 
   async hashPassword(hash, req) {
-    console.log("before", req.body)
     req.body.password = hash
-    console.log("after`", req.body)
     return hash
   }
 
@@ -147,7 +138,6 @@ class SignUpService {
   }
 
   createGoogleUser(encodedUser) {
-    console.log(encodedUser)
     return db.insert(encodedUser.data as object, `${encodedUser.id}:user`)
     .catch( err =>
       Promise.reject({
@@ -158,7 +148,6 @@ class SignUpService {
   }
 
   createSimpleUser(encodedUser) {
-    console.log(encodedUser)
     return db.insert(encodedUser.data as object, `${encodedUser.id}:user`)
       .catch( err =>
         Promise.reject({
@@ -169,7 +158,6 @@ class SignUpService {
   }
 
   async createGoogleUserToken(user, req) {
-    console.log(user)
     const payload = {
       id: user.id,
       ulid: req.body.ulid
@@ -181,12 +169,10 @@ class SignUpService {
   }
 
   async createSimpleUserToken(user, req) {
-    console.log("userDB",user)
     const payload = {
       id: user.id,
       ulid: req.body.ulid
     };
-    console.log("payload",payload)
     // ulid: user.data.ulid,
     const secret =  process.env.TOKEN_PRIVATE_KEY
     const options = { expiresIn: '1h' };
@@ -208,7 +194,6 @@ class SignUpService {
   }
 
   async createUserObject(userData, req) {
-    console.log(userData)
     const googleUserData: GoogleUser = {
       ulid: ULID.ulid(),
       userData: encode(JSON.stringify(userData)),

@@ -18,11 +18,8 @@ class Controller {
   downloadProjectAvatars(req, res, next) {
 
     service.downloadProjectAvatars(req, res).then(zipFiles => {
-      console.log('zip', zipFiles)
-      console.log('zip2', res.zip)
-      res.zip(zipFiles, '111', (e) => {
-        console.log('11')
-      })
+
+      
     })
       .catch(next);
   }

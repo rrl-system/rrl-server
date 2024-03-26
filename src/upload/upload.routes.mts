@@ -20,7 +20,6 @@ router.use(async (req: Request, res: Response, next: NextFunction) => {
 //     },
 //     filename: function (req, file, callback) {
 //        // You can write your own logic to define the filename here (before passing it into the callback), e.g:
-//        console.log(file.originalname); // User-defined filename is available
 //        const filename = `file_${crypto.randomUUID()}`; // Create custom filename (crypto.randomUUID available in Node 19.0.0+ only)
 //        callback(null, filename);
 //     }

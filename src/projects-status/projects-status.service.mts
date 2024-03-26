@@ -47,9 +47,6 @@ class Service {
   }
 
   getProjects(verifiedToken) {
-      console.log(verifiedToken)
-      // const row1 = await db.get("SELECT * FROM foo WHERE id = ?", 2);
-      // return db.partitionedList(verifiedToken.ulid,{ include_docs: true, start_key: `${verifiedToken.ulid}:status:0`, end_key: `${verifiedToken.ulid}:status:f`})
       return sqlDb.all(`SELECT * FROM 'statuses' WHERE _id LIKE '${verifiedToken.ulid}:project:%';`)
         .catch( err =>
           Promise.reject({
@@ -80,7 +77,6 @@ class Service {
     return token;
   }
   async verifyToken(token) {
-    console.log(token)
     const secret = process.env.TOKEN_PRIVATE_KEY;
     try {
       return jwt.verify(token, secret);

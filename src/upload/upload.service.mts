@@ -62,7 +62,6 @@ class Service {
       destination: function (req, file, cb) {
         const projectId = req.params.projectId.split(":")[2]
         let destPath = path.join('uploads', verifiedToken.ulid, `project-${projectId}`);
-        console.log(destPath)
         fs.mkdirSync(destPath, { recursive: true });
         cb(null, destPath);
       },
@@ -98,7 +97,6 @@ class Service {
       },
 
       filename: function (req, file, cb) {
-          console.log(file);
           // cb(null, "avatar"+file.originalname.slice((file.originalname.lastIndexOf(".") - 1 >>> 0) + 2));
           cb(null, "avatar");
       }
@@ -128,7 +126,6 @@ class Service {
   //     },
   //     filename: function (req, file, callback) {
   //       // You can write your own logic to define the filename here (before passing it into the callback), e.g:
-  //       console.log(file.originalname); // User-defined filename is available
   //       const filename = '111'
   //       callback(null, filename);
   //     }
@@ -202,19 +199,14 @@ class Service {
 
   uploadFiles(req, verifiedToken) {
     // this.upload(req)
-    console.log(req.body)
-    console.log(req)
     return {a:1};
   }
 
   createProject(req, verifiedToken) {
-    console.log(req.body)
-    console.log(req.files)
     return Promise.resolve(1);
   }
 
   getProjects(verifiedToken) {
-      console.log(verifiedToken)
       return db.partitionedList(verifiedToken.ulid,{ include_docs: true, start_key: `${verifiedToken.ulid}:project:0`, end_key: `${verifiedToken.ulid}:project:f`})
         .catch( err =>
           Promise.reject({
@@ -226,13 +218,9 @@ class Service {
 
   getAvatarFile(req, res, verifiedToken) {
     const dirPath = path.join('uploads', verifiedToken.ulid);
-    console.log('dirPath', dirPath)
     const filePath = path.join(dirPath, 'avatar');
-    console.log('filePath', filePath)
-
     if (fs.existsSync(filePath)) {
       res.download(filePath, 'avatar', (err) => {
-        console.log('AvatarPath')
         if (err) {
           res.status(500).send({
             error: `Ошибка при скачивании файла: ${err.message}`
@@ -248,13 +236,9 @@ class Service {
 
   getProjectAvatarFile(req, res, verifiedToken) {
     const dirPath = path.join('uploads', verifiedToken.ulid);
-    console.log('dirPath', dirPath)
     const filePath = path.join(dirPath, 'avatar');
-    console.log('filePath', filePath)
-
     if (fs.existsSync(filePath)) {
       res.download(filePath, 'avatar', (err) => {
-        console.log('AvatarPath')
         if (err) {
           res.status(500).send({
             error: `Ошибка при скачивании файла: ${err.message}`
@@ -269,8 +253,6 @@ class Service {
   }
 
   async hasAuthorizationHeader(req) {
-    console.log('hasAuthorizationHeader')
-    // console.log(path.dirname(import.meta.url))
     if (!req.headers['authorization'])
       return Promise.reject({
         error: 'Не заданы параметры авторизации',
@@ -280,7 +262,6 @@ class Service {
   }
 
   async getToken(req) {
-    console.log('getToken')
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) {
@@ -292,7 +273,6 @@ class Service {
     return token;
   }
   async verifyToken(token) {
-    console.log(token)
     const secret = process.env.TOKEN_PRIVATE_KEY;
     try {
       return jwt.verify(token, secret);

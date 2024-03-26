@@ -22,13 +22,12 @@ class Service {
         try {
             const data = await fs.readFile(`./uploads/${verifiedToken.ulid}/project-${req.params.projectId}/predicting_data.json`, 'utf8');
             const jsonData = JSON.parse(data);
-            console.log(jsonData);
             return jsonData;
         } catch (error) {
             console.error('Error reading the neural data file:', error);
             throw new Error('Failed to read neural data');
         }
-    }     
+    }
 
     async hasAuthorizationHeader(req) {
         if (!req.headers['authorization'])
@@ -38,7 +37,7 @@ class Service {
           })
         return true;
       }
-    
+
     async getToken(req) {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
@@ -50,9 +49,8 @@ class Service {
         }
         return token;
     }
-    
+
     async verifyToken(token) {
-        console.log(token)
         const secret = process.env.TOKEN_PRIVATE_KEY;
         try {
             return jwt.verify(token, secret);

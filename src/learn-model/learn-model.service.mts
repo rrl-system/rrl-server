@@ -70,9 +70,8 @@ class Service {
     }
     return token;
   }
-  
+
   async verifyToken(token) {
-    console.log(token)
     const secret = process.env.TOKEN_PRIVATE_KEY;
     try {
       return jwt.verify(token, secret);

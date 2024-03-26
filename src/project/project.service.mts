@@ -83,7 +83,6 @@ class Service {
     const project = req.body
     const projectId = project._id.split(":")[2]
     project._id = `${verifiedToken.ulid}:project:${projectId}`
-    console.log("update", project)
     projectStatusNotificationService.sendMessage(project._id, 'Updated' )
     return db.insert(project)
     .catch( err =>
@@ -127,7 +126,6 @@ class Service {
   }
 
   async verifyToken(token) {
-    console.log(token)
     const secret = process.env.TOKEN_PRIVATE_KEY;
     try {
       return jwt.verify(token, secret);
@@ -142,11 +140,8 @@ class Service {
   showFiles(req) {
     return new Promise(async (resolve, reject) => {
         try {
-
             const projectDocId = req.params.projectId;
             let projectDoc = await db.get(projectDocId) as any;
-            console.log(projectDoc);
-
             if (projectDoc.files && Array.isArray(projectDoc.files)) {
                 const files = projectDoc.files.map(fileName => ({
                     name: fileName,
